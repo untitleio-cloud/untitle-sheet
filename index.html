@@ -3587,9 +3587,9 @@ async function autoPickSource() {
     if (h === 'blocked') sourceHealth.hyperliquid = 'blocked';
     const reachable = k => k === 'selfhost' ? selfhostAvailable : k === 'hyperliquid' ? h !== 'blocked' : k === 'binance' ? b !== 'blocked' : k === 'coingecko' ? c !== 'blocked' : false;
     if (!localStorage.getItem('dataSource')) {
-      dataSource = ['selfhost', 'hyperliquid', 'binance', 'coingecko'].find(reachable) || 'binance';
+      dataSource = ['selfhost', 'binance', 'hyperliquid', 'coingecko'].find(reachable) || 'binance';
     } else if (!reachable(dataSource)) {
-      const alt = ['selfhost', 'hyperliquid', 'binance', 'coingecko'].find(k => k !== dataSource && reachable(k));
+      const alt = ['selfhost', 'binance', 'hyperliquid', 'coingecko'].find(k => k !== dataSource && reachable(k));
       if (alt) {
         const from = dataSource;
         dataSource = alt;
@@ -3766,7 +3766,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.34';
+const APP_BUILD = '2026-09-05.35';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
