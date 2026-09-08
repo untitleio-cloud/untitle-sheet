@@ -1,0 +1,10 @@
+{
+  "name": "stealth-dashboard-tests",
+  "private": true,
+  "scripts": {
+    "test": "node harness.js"
+  },
+  "devDependencies": {
+    "jsdom": "16"
+  }
+}
