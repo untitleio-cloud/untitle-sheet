@@ -3277,8 +3277,20 @@ function attachAutocomplete(editor, cellEl, row) {
     }
     if (mode === 'bybit' || mode === 'okx') {
       acResults = cgLocalMatches(q);
+      if (mode === 'bybit') {
+        const seenB = {};
+        acResults.forEach(r => { seenB[r.ticker] = true; });
+        const qlB = (q || '').toLowerCase();
+        for (const [t, n] of POPULAR_US) {
+          if (seenB[t]) continue;
+          if (!qlB || t.toLowerCase().includes(qlB) || n.toLowerCase().includes(qlB)) {
+            acResults.push({ ticker: t, realName: n + ' (xStocks)', type: 'stock' });
+            seenB[t] = true;
+          }
+        }
+      }
       renderList();
-      status.textContent = (mode === 'bybit' ? 'Bybit' : 'OKX') + ' crypto (USDT pairs) \u00B7 built-in list';
+      status.textContent = mode === 'bybit' ? 'Bybit crypto + tokenized US stocks' : 'OKX crypto (USDT pairs) \u00B7 built-in list';
       return;
     }
     if (mode === 'coingecko') {
@@ -3550,9 +3562,10 @@ async function fetchCoinGeckoTicker(ticker) {
 let bybitNetFails = 0;
 let okxNetFails = 0;
 
-async function fetchBybitTicker(ticker) {
+async function fetchBybitTicker(ticker, type) {
+  const symbol = (type === 'stock' ? ticker.toUpperCase() + 'XUSDT' : ticker.toUpperCase() + 'USDT');
   try {
-    const res = await fetch('https://api.bybit.com/v5/market/tickers?category=spot&symbol=' + encodeURIComponent(ticker.toUpperCase() + 'USDT'));
+    const res = await fetch('https://api.bybit.com/v5/market/tickers?category=spot&symbol=' + encodeURIComponent(symbol));
     if (res.status === 451 || res.status === 403) { sourceHealth.bybit = 'blocked'; return false; }
     if (!res.ok) { if (++bybitNetFails >= 2) sourceHealth.bybit = 'blocked'; return false; }
     const d = await res.json();
@@ -3581,7 +3594,7 @@ async function fetchTicker(ticker, type) {
   if (dataSource === 'selfhost') return fetchSelfhostTicker(ticker, type);
   if (dataSource === 'hyperliquid') return fetchHyperliquidTicker(ticker);
   if (dataSource === 'coingecko') return type === 'crypto' ? fetchCoinGeckoTicker(ticker) : Promise.resolve(false);
-  if (dataSource === 'bybit') return type === 'crypto' ? fetchBybitTicker(ticker) : Promise.resolve(false);
+  if (dataSource === 'bybit') return fetchBybitTicker(ticker, type);
   if (dataSource === 'okx') return type === 'crypto' ? fetchOkxTicker(ticker) : Promise.resolve(false);
   return fetchBinanceTicker(ticker);
 }
@@ -3596,7 +3609,7 @@ async function fetchPrices() {
   let ok = false;
   const assets = Object.values(rowAssets);
 
-  const eligible = a => dataSource === 'binance' ? binanceEligible(a) : ['coingecko', 'bybit', 'okx'].indexOf(dataSource) !== -1 ? a.type === 'crypto' : true;
+  const eligible = a => dataSource === 'binance' ? binanceEligible(a) : ['coingecko', 'okx'].indexOf(dataSource) !== -1 ? a.type === 'crypto' : true;
   const typeOf = {};
   assets.forEach(a => { typeOf[a.ticker] = a.type; });
   const tickers = [...new Set(assets.filter(eligible).map(a => a.ticker))];
@@ -3615,7 +3628,7 @@ function hasPendingBound() {
   return Object.values(rowAssets).some(a => {
     if (prices[a.ticker]) return false;
     if (dataSource === 'binance') return binanceEligible(a);
-    if (['coingecko', 'bybit', 'okx'].indexOf(dataSource) !== -1) return a.type === 'crypto';
+    if (['coingecko', 'okx'].indexOf(dataSource) !== -1) return a.type === 'crypto';
     return true;
   });
 }
@@ -3839,14 +3852,14 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.43';
+const APP_BUILD = '2026-09-05.44';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
   ['binance', 'Binance', 'fapi.binance.com \u00B7 crypto + stock perpetuals'],
   ['hyperliquid', 'Hyperliquid', 'api.hyperliquid.xyz \u00B7 free \u00B7 crypto + 100+ stock perps'],
   ['coingecko', 'CoinGecko', 'api.coingecko.com \u00B7 free \u00B7 crypto only (no stocks)'],
-  ['bybit', 'Bybit', 'api.bybit.com \u00B7 free \u00B7 crypto only (USDT pairs)'],
+  ['bybit', 'Bybit', 'api.bybit.com \u00B7 free \u00B7 crypto + tokenized US stocks (xStocks)'],
   ['okx', 'OKX', 'www.okx.com \u00B7 free \u00B7 crypto only (USDT pairs)'],
 ];
 

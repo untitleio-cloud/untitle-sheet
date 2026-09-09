@@ -30,7 +30,7 @@ function routes(url, body) {
   if (url.includes('fapi/v1/time')) return { serverTime: Date.now() };
   if (url.includes('api.bybit.com/v5/market/tickers')) {
     const sym = (url.match(/symbol=([^&]+)/) || [])[1] || '';
-    const db = { BTCUSDT: ['70000', '0.015'], ETHUSDT: ['2500', '0.02'], SOLUSDT: ['104.03', '0.0149'] };
+    const db = { BTCUSDT: ['70000', '0.015'], ETHUSDT: ['2500', '0.02'], SOLUSDT: ['104.03', '0.0149'], AAPLXUSDT: ['190.12', '0.0063'], TSLAXUSDT: ['367.7', '0.0532'] };
     const e = db[sym];
     return { retCode: 0, result: { list: e ? [{ symbol: sym, lastPrice: e[0], price24hPcnt: e[1] }] : [] } };
   }
@@ -374,7 +374,7 @@ function check(name, cond, detail) {
   await g("refreshMarket(true)");
   check('Bybit: crypto fetch', g("prices['BTC'] && prices['BTC'].src === 'bybit' && prices['BTC'].price === 70000"), JSON.stringify(g("prices['BTC']")));
   check('Bybit: 24h change %', Math.abs(g("prices['BTC'].change") - 1.5) < 0.001, String(g("prices['BTC'].change")));
-  check('Bybit: stock ineligible', g("prices['AAPL'] === undefined"), JSON.stringify(g("prices['AAPL']")));
+  check('Bybit: xStocks stock fetch', g("prices['AAPL'] && prices['AAPL'].src === 'bybit' && prices['AAPL'].price === 190.12"), JSON.stringify(g("prices['AAPL']")));
   g("applyDataSource('okx');");
   await g("refreshMarket(true)");
   check('OKX: crypto fetch', g("prices['BTC'] && prices['BTC'].src === 'okx' && prices['BTC'].price === 70000"), JSON.stringify(g("prices['BTC']")));
