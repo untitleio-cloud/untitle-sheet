@@ -28,6 +28,18 @@ function routes(url, body) {
     return { lastPrice: String(t[sym][0]), priceChangePercent: String(t[sym][1]) };
   }
   if (url.includes('fapi/v1/time')) return { serverTime: Date.now() };
+  if (url.includes('api.bybit.com/v5/market/tickers')) {
+    const sym = (url.match(/symbol=([^&]+)/) || [])[1] || '';
+    const db = { BTCUSDT: ['70000', '0.015'], ETHUSDT: ['2500', '0.02'], SOLUSDT: ['104.03', '0.0149'] };
+    const e = db[sym];
+    return { retCode: 0, result: { list: e ? [{ symbol: sym, lastPrice: e[0], price24hPcnt: e[1] }] : [] } };
+  }
+  if (url.includes('www.okx.com/api/v5/market/ticker')) {
+    const inst = (url.match(/instId=([^&]+)/) || [])[1] || '';
+    const db = { 'BTC-USDT': ['70000', '68000'], 'ETH-USDT': ['2500', '2450'], 'SOL-USDT': ['104.03', '102.5'] };
+    const e = db[inst];
+    return { code: '0', data: e ? [{ instId: inst, last: e[0], open24h: e[1] }] : [] };
+  }
   if (url.includes('api.coingecko.com/api/v3/simple/price')) {
     const ids = decodeURIComponent((url.match(/ids=([^&]+)/) || [])[1] || '').split(',');
     const db = { bitcoin: { usd: 70000, usd_24h_change: 1.5 }, ethereum: { usd: 2500, usd_24h_change: 2 } };
@@ -355,6 +367,20 @@ function check(name, cond, detail) {
   g("lastEscTime = 0;");
   document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
   check('BMC 모달 Esc 닫힘', !document.querySelector('.modal-overlay'));
+
+  // 5y6b. Bybit / OKX sources
+  check('SRC_META with Bybit/OKX', g("SRC_META.some(m => m[0] === 'bybit') && SRC_META.some(m => m[0] === 'okx')"), '');
+  g("applyDataSource('bybit');");
+  await g("refreshMarket(true)");
+  check('Bybit: crypto fetch', g("prices['BTC'] && prices['BTC'].src === 'bybit' && prices['BTC'].price === 70000"), JSON.stringify(g("prices['BTC']")));
+  check('Bybit: 24h change %', Math.abs(g("prices['BTC'].change") - 1.5) < 0.001, String(g("prices['BTC'].change")));
+  check('Bybit: stock ineligible', g("prices['AAPL'] === undefined"), JSON.stringify(g("prices['AAPL']")));
+  g("applyDataSource('okx');");
+  await g("refreshMarket(true)");
+  check('OKX: crypto fetch', g("prices['BTC'] && prices['BTC'].src === 'okx' && prices['BTC'].price === 70000"), JSON.stringify(g("prices['BTC']")));
+  check('OKX: change from open24h', Math.abs(g("prices['BTC'].change") - (70000/68000-1)*100) < 0.001, String(g("prices['BTC'].change")));
+  g("applyDataSource('binance');");
+  await g("refreshMarket(true)");
 
   // 5y7. CoinGecko attribution credit
   check('크레딧 요소 존재', !!document.getElementById('cgCredit'), '');

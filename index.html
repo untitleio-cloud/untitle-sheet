@@ -3029,7 +3029,7 @@ function hideAcPanel() {
 async function loadCatalog() {
   if (catalog) return catalog;
   if (catalogPromise) return catalogPromise;
-  if (dataSource === 'coingecko' || dataSource === 'hyperliquid') return Promise.resolve(null);
+  if (['coingecko', 'hyperliquid', 'bybit', 'okx'].indexOf(dataSource) !== -1) return Promise.resolve(null);
   catalogPromise = (async () => {
     let cache = null;
     try { cache = JSON.parse(localStorage.getItem('catalogCache') || 'null'); } catch(e) {}
@@ -3275,6 +3275,12 @@ function attachAutocomplete(editor, cellEl, row) {
       }
       return;
     }
+    if (mode === 'bybit' || mode === 'okx') {
+      acResults = cgLocalMatches(q);
+      renderList();
+      status.textContent = (mode === 'bybit' ? 'Bybit' : 'OKX') + ' crypto (USDT pairs) \u00B7 built-in list';
+      return;
+    }
     if (mode === 'coingecko') {
       acResults = cgLocalMatches(q);
       renderList();
@@ -3406,7 +3412,7 @@ async function fetchPriceFor(sel) {
 // ===== MARKET DATA =====
 let dataSource = localStorage.getItem('dataSource') || 'binance';
 if (dataSource === 'coinbase') { dataSource = 'coingecko'; localStorage.setItem('dataSource', 'coingecko'); }
-if (['binance', 'coingecko', 'selfhost', 'hyperliquid'].indexOf(dataSource) === -1) { dataSource = 'binance'; localStorage.setItem('dataSource', 'binance'); }
+if (['binance', 'coingecko', 'selfhost', 'hyperliquid', 'bybit', 'okx'].indexOf(dataSource) === -1) { dataSource = 'binance'; localStorage.setItem('dataSource', 'binance'); }
 let binanceBlocked = false;
 let sourceHealth = {};
 let selfhostAvailable = false;
@@ -3541,10 +3547,42 @@ async function fetchCoinGeckoTicker(ticker) {
   } catch(e) { if (++cgNetFails >= 2) sourceHealth.coingecko = 'blocked'; return false; }
 }
 
+let bybitNetFails = 0;
+let okxNetFails = 0;
+
+async function fetchBybitTicker(ticker) {
+  try {
+    const res = await fetch('https://api.bybit.com/v5/market/tickers?category=spot&symbol=' + encodeURIComponent(ticker.toUpperCase() + 'USDT'));
+    if (res.status === 451 || res.status === 403) { sourceHealth.bybit = 'blocked'; return false; }
+    if (!res.ok) { if (++bybitNetFails >= 2) sourceHealth.bybit = 'blocked'; return false; }
+    const d = await res.json();
+    const e = ((d && d.result && d.result.list) || [])[0];
+    if (!e || !isFinite(parseFloat(e.lastPrice))) return false;
+    prices[ticker] = { price: parseFloat(e.lastPrice), change: (parseFloat(e.price24hPcnt) || 0) * 100, src: 'bybit' };
+    return true;
+  } catch(e) { if (++bybitNetFails >= 2) sourceHealth.bybit = 'blocked'; return false; }
+}
+
+async function fetchOkxTicker(ticker) {
+  try {
+    const res = await fetch('https://www.okx.com/api/v5/market/ticker?instId=' + encodeURIComponent(ticker.toUpperCase() + '-USDT'));
+    if (res.status === 451 || res.status === 403) { sourceHealth.okx = 'blocked'; return false; }
+    if (!res.ok) { if (++okxNetFails >= 2) sourceHealth.okx = 'blocked'; return false; }
+    const d = await res.json();
+    const e = ((d && d.data) || [])[0];
+    if (!e || !isFinite(parseFloat(e.last))) return false;
+    const last = parseFloat(e.last), open = parseFloat(e.open24h);
+    prices[ticker] = { price: last, change: isFinite(open) && open > 0 ? (last / open - 1) * 100 : 0, src: 'okx' };
+    return true;
+  } catch(e) { if (++okxNetFails >= 2) sourceHealth.okx = 'blocked'; return false; }
+}
+
 async function fetchTicker(ticker, type) {
   if (dataSource === 'selfhost') return fetchSelfhostTicker(ticker, type);
   if (dataSource === 'hyperliquid') return fetchHyperliquidTicker(ticker);
   if (dataSource === 'coingecko') return type === 'crypto' ? fetchCoinGeckoTicker(ticker) : Promise.resolve(false);
+  if (dataSource === 'bybit') return type === 'crypto' ? fetchBybitTicker(ticker) : Promise.resolve(false);
+  if (dataSource === 'okx') return type === 'crypto' ? fetchOkxTicker(ticker) : Promise.resolve(false);
   return fetchBinanceTicker(ticker);
 }
 
@@ -3558,7 +3596,7 @@ async function fetchPrices() {
   let ok = false;
   const assets = Object.values(rowAssets);
 
-  const eligible = a => dataSource === 'binance' ? binanceEligible(a) : dataSource === 'coingecko' ? a.type === 'crypto' : true;
+  const eligible = a => dataSource === 'binance' ? binanceEligible(a) : ['coingecko', 'bybit', 'okx'].indexOf(dataSource) !== -1 ? a.type === 'crypto' : true;
   const typeOf = {};
   assets.forEach(a => { typeOf[a.ticker] = a.type; });
   const tickers = [...new Set(assets.filter(eligible).map(a => a.ticker))];
@@ -3577,7 +3615,7 @@ function hasPendingBound() {
   return Object.values(rowAssets).some(a => {
     if (prices[a.ticker]) return false;
     if (dataSource === 'binance') return binanceEligible(a);
-    if (dataSource === 'coingecko') return a.type === 'crypto';
+    if (['coingecko', 'bybit', 'okx'].indexOf(dataSource) !== -1) return a.type === 'crypto';
     return true;
   });
 }
@@ -3602,8 +3640,8 @@ function autoSwitchFromBlocked() {
   if (sel === 'selfhost') return;
   const selBlocked = sel === 'binance' ? binanceBlocked : sourceHealth[sel] === 'blocked';
   if (!selBlocked) return;
-  const alt = ['selfhost', 'hyperliquid', 'binance', 'coingecko'].find(k =>
-    k !== sel && (k === 'selfhost' ? selfhostAvailable : k === 'hyperliquid' ? !hlBlocked : k === 'binance' ? !binanceBlocked : sourceHealth.coingecko !== 'blocked'));
+  const healthy = k => k === 'selfhost' ? selfhostAvailable : k === 'hyperliquid' ? !hlBlocked : k === 'binance' ? !binanceBlocked : sourceHealth[k] !== 'blocked';
+  const alt = ['selfhost', 'hyperliquid', 'binance', 'coingecko', 'bybit', 'okx'].find(k => k !== sel && healthy(k));
   if (!alt) return;
   lastAutoSwitch = Date.now();
   applyDataSource(alt);
@@ -3612,15 +3650,19 @@ function autoSwitchFromBlocked() {
 
 async function autoPickSource() {
   try {
-    const [b, c, h] = await Promise.all([probeSource('binance'), probeSource('coingecko'), probeSource('hyperliquid')]);
+    const [b, c, h, y, o] = await Promise.all([probeSource('binance'), probeSource('coingecko'), probeSource('hyperliquid'), probeSource('bybit'), probeSource('okx')]);
     if (b === 'blocked') sourceHealth.binance = 'blocked';
     if (c === 'blocked') sourceHealth.coingecko = 'blocked';
     if (h === 'blocked') sourceHealth.hyperliquid = 'blocked';
-    const reachable = k => k === 'selfhost' ? selfhostAvailable : k === 'hyperliquid' ? h !== 'blocked' : k === 'binance' ? b !== 'blocked' : k === 'coingecko' ? c !== 'blocked' : false;
+    if (y === 'blocked') sourceHealth.bybit = 'blocked';
+    if (o === 'blocked') sourceHealth.okx = 'blocked';
+    const reach = { selfhost: selfhostAvailable, hyperliquid: h !== 'blocked', binance: b !== 'blocked', coingecko: c !== 'blocked', bybit: y !== 'blocked', okx: o !== 'blocked' };
+    const reachable = k => !!reach[k];
+    const ORDER = ['selfhost', 'binance', 'coingecko', 'bybit', 'okx', 'hyperliquid'];
     if (!localStorage.getItem('dataSource')) {
-      dataSource = ['selfhost', 'binance', 'coingecko', 'hyperliquid'].find(reachable) || 'binance';
+      dataSource = ORDER.find(reachable) || 'binance';
     } else if (!reachable(dataSource)) {
-      const alt = ['selfhost', 'binance', 'coingecko', 'hyperliquid'].find(k => k !== dataSource && reachable(k));
+      const alt = ORDER.find(k => k !== dataSource && reachable(k));
       if (alt) {
         const from = dataSource;
         dataSource = alt;
@@ -3797,13 +3839,15 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.42';
+const APP_BUILD = '2026-09-05.43';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
   ['binance', 'Binance', 'fapi.binance.com \u00B7 crypto + stock perpetuals'],
   ['hyperliquid', 'Hyperliquid', 'api.hyperliquid.xyz \u00B7 free \u00B7 crypto + 100+ stock perps'],
   ['coingecko', 'CoinGecko', 'api.coingecko.com \u00B7 free \u00B7 crypto only (no stocks)'],
+  ['bybit', 'Bybit', 'api.bybit.com \u00B7 free \u00B7 crypto only (USDT pairs)'],
+  ['okx', 'OKX', 'www.okx.com \u00B7 free \u00B7 crypto only (USDT pairs)'],
 ];
 
 function probeUrl(url) {
@@ -3838,6 +3882,8 @@ function probeSource(kind) {
       .then(d => (d && d.ok ? 'ok' : 'blocked'))
       .catch(() => 'blocked');
   }
+  if (kind === 'bybit') return probeUrl('https://api.bybit.com/v5/market/tickers?category=spot&symbol=BTCUSDT');
+  if (kind === 'okx') return probeUrl('https://www.okx.com/api/v5/market/ticker?instId=BTC-USDT');
   return probeUrl(kind === 'binance' ? 'https://fapi.binance.com/fapi/v1/time' : 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
 }
 
@@ -4274,7 +4320,7 @@ function loadLastPrices() {
   } catch(e) {}
 }
 
-const SRC_NAMES = { binance: 'Binance', coinbase: 'Coinbase', coingecko: 'CoinGecko', finnhub: 'Finnhub', selfhost: 'Self-hosted', hyperliquid: 'Hyperliquid' };
+const SRC_NAMES = { binance: 'Binance', coinbase: 'Coinbase', coingecko: 'CoinGecko', finnhub: 'Finnhub', selfhost: 'Self-hosted', hyperliquid: 'Hyperliquid', bybit: 'Bybit', okx: 'OKX' };
 
 function updateCGCredit() {
   const el = document.getElementById('cgCredit');
