@@ -356,6 +356,13 @@ function check(name, cond, detail) {
   document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
   check('BMC 모달 Esc 닫힘', !document.querySelector('.modal-overlay'));
 
+  // 5y7. CoinGecko attribution credit
+  check('크레딧 요소 존재', !!document.getElementById('cgCredit'), '');
+  g("dataSource = 'coingecko'; renderGrid();");
+  check('coingecko 소스 시 크레딧 표시', document.getElementById('cgCredit').hidden === false, String(document.getElementById('cgCredit').hidden));
+  g("dataSource = 'binance'; renderGrid();");
+  check('기타 소스 시 숨김', document.getElementById('cgCredit').hidden === true, String(document.getElementById('cgCredit').hidden));
+
   // 5y. Esc cancels edit without saving
   g("cellData['6C'] = 'keep'; renderGrid();");
   window.startEdit(6, 2);
