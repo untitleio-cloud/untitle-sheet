@@ -227,6 +227,15 @@ function check(name, cond, detail) {
     JSON.stringify(g("cellStyles['8C']")) + '|' + JSON.stringify(g("cellStyles['8D']")));
   g("undo();");
 
+  // 5x1d. paste with no selection lands at first data cell
+  g("selectedCell = null; selRange = null;");
+  const evN = new window.Event('paste', { bubbles: true, cancelable: true });
+  Object.defineProperty(evN, 'clipboardData', { value: { getData: t => t === 'text/html' ? '<table><tr><td style=\"font-weight:700\">TOP</td></tr></table>' : 'TOP' } });
+  document.activeElement && document.activeElement.blur();
+  document.dispatchEvent(evN);
+  check('선택 없이 붙여넣기 → 첫 데이터 셀', g("cellData['1A']") === 'TOP' && g("cellStyles['1A'].bold") === true, g("cellData['1A']") + '|' + JSON.stringify(g("cellStyles['1A']")));
+  g("undo();");
+
   // 5x2. type-to-edit (Excel/Sheets style)
   g("document.activeElement && document.activeElement.blur();");
   window.setSelection(6, 2, false);

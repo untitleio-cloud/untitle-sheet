@@ -2302,6 +2302,7 @@ function htmlPasteGrid(html) {
 }
 
 function pasteExternalText(text, html) {
+  if (!selectedCell) selectCell(1, 0);
   if (!selectedCell) return;
   let rows;
   const hg = html ? htmlPasteGrid(html) : null;
@@ -3766,7 +3767,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.36';
+const APP_BUILD = '2026-09-05.37';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
