@@ -3792,7 +3792,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.40';
+const APP_BUILD = '2026-09-05.41';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
@@ -4041,7 +4041,6 @@ function openHelpModal() {
     ]],
     ['Privacy &amp; safety', IC.shield, [
       'Everything lives in this browser \u2014 no accounts, no tracking, no uploads',
-      'Tools \u2192 Run self-test\u2026 verifies spreadsheet features in place',
     ]],
   ];
   const tip = document.createElement('div');
@@ -4141,7 +4140,6 @@ document.querySelector('[data-menu="tools"]').addEventListener('click', (e) => {
     d.addEventListener('mousedown', (ev) => { ev.preventDefault(); ev.stopPropagation(); closeToolsMenu(); fn(); });
     toolsMenu.appendChild(d);
   };
-  mk('Run self-test\u2026', () => runSelfTest());
   document.body.appendChild(toolsMenu);
 });
 
