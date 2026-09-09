@@ -930,7 +930,7 @@ body {
 const COLS = 26;
 const ROWS = 30;
 const COL_HEADERS = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
-const COL_LABELS = ['Code','Unit Price (USD)','Progress (%)','Inventory','Budget Allocation','Status'].concat(Array(20).fill(''));
+const COL_LABELS = ['Code','Budget (USD)','Progress (%)','Inventory','Budget Allocation','Status'].concat(Array(20).fill(''));
 
 const ASSETS = [
   { ticker:'TSLA', realName:'Tesla', code:'Project_A', name:'Alpha Division', type:'stock', inv:125 },
@@ -1043,7 +1043,7 @@ let activeColorPicker = null;
 let colWidths = {};
 let rowHeights = {};
 let colMap = { code: 0, name: 1, price: 2, change: 3, inv: 4, budget: 5, status: 6 };
-const COL_LABEL_FOR = { code: 'Code', name: 'Project Name', price: 'Unit Price (USD)', change: 'Progress (%)', inv: 'Inventory', budget: 'Budget Allocation', status: 'Status' };
+const COL_LABEL_FOR = { code: 'Code', name: 'Project Name', price: 'Budget (USD)', change: 'Progress (%)', inv: 'Inventory', budget: 'Budget Allocation', status: 'Status' };
 function colL(k) { return colMap[k] === undefined ? null : COL_HEADERS[colMap[k]]; }
 function writeCell(r, k, v) { const L = colL(k); if (L !== null) cellData[r + L] = v; }
 let undoStack = [];
@@ -1168,10 +1168,16 @@ function initCellData() {
       if (L && cellData['0' + L] === 'Item Code') { cellData['0' + L] = 'Code'; saveData(); }
       localStorage.setItem('labelCodeV8', '1');
     }
+    if (localStorage.getItem('labelPriceV9') !== '1') {
+      const L = colL('price');
+      if (L && cellData['0' + L] === 'Unit Price (USD)') { cellData['0' + L] = 'Budget (USD)'; saveData(); }
+      localStorage.setItem('labelPriceV9', '1');
+    }
   } else {
     localStorage.setItem('colsV6', '1');
     localStorage.setItem('colsV7', '1');
     localStorage.setItem('labelCodeV8', '1');
+    localStorage.setItem('labelPriceV9', '1');
     Object.entries(colMap).forEach(([k, c]) => {
       if (COL_LABEL_FOR[k] === undefined) return;
       cellData['0' + COL_HEADERS[c]] = COL_LABEL_FOR[k];
@@ -3786,7 +3792,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.39';
+const APP_BUILD = '2026-09-05.40';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
