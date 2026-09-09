@@ -2259,6 +2259,19 @@ function cellStyleStr(cell, rules) {
   (cell.getAttribute('class') || '').split(/\s+/).forEach(c => { if (rules[c]) parts.push(rules[c]); });
   const inline = cell.getAttribute('style');
   if (inline) parts.push(inline);
+  const bgAttr = cell.getAttribute('bgcolor');
+  if (bgAttr) parts.push('background:' + bgAttr);
+  cell.querySelectorAll('b, strong, i, em, u, ins, strike, s, del, font').forEach(el => {
+    const tag = el.tagName.toLowerCase();
+    if (tag === 'b' || tag === 'strong') parts.push('font-weight:700');
+    else if (tag === 'i' || tag === 'em') parts.push('font-style:italic');
+    else if (tag === 'u' || tag === 'ins') parts.push('text-decoration:underline');
+    else if (tag === 'strike' || tag === 's' || tag === 'del') parts.push('text-decoration:line-through');
+    else if (tag === 'font') {
+      if (el.getAttribute('color')) parts.push('color:' + el.getAttribute('color'));
+      if (el.getAttribute('face')) parts.push('font-family:' + el.getAttribute('face'));
+    }
+  });
   const inner = cell.querySelector('[style]');
   if (inner && inner.getAttribute('style')) parts.push(inner.getAttribute('style'));
   return parts.join(';');
@@ -3767,7 +3780,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.37';
+const APP_BUILD = '2026-09-05.38';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [

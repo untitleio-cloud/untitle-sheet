@@ -236,6 +236,17 @@ function check(name, cond, detail) {
   check('선택 없이 붙여넣기 → 첫 데이터 셀', g("cellData['1A']") === 'TOP' && g("cellStyles['1A'].bold") === true, g("cellData['1A']") + '|' + JSON.stringify(g("cellStyles['1A']")));
   g("undo();");
 
+  // 5x1e. legacy HTML tags: bgcolor attr, <font color>, <b>, <i>, <u>
+  window.setSelection(8, 2, false);
+  const evL = new window.Event('paste', { bubbles: true, cancelable: true });
+  const lHtml = '<table><tr><td bgcolor="#FFFF00"><b>boldcell</b></td><td><font color="#ff0000">redfont</font></td><td><i>i</i><u>u</u>mix</td></tr></table>';
+  Object.defineProperty(evL, 'clipboardData', { value: { getData: t => t === 'text/html' ? lHtml : 'boldcell\tredfont\tmix' } });
+  document.activeElement && document.activeElement.blur();
+  document.dispatchEvent(evL);
+  check('레거시 태그 서식 복원', g("cellStyles['8C'].fill") === '#FFFF00' && g("cellStyles['8C'].bold") === true && g("cellStyles['8D'].color") === '#ff0000' && g("cellStyles['8E'].italic") === true && g("cellStyles['8E'].underline") === true,
+    JSON.stringify(g("cellStyles['8C']")) + '|' + JSON.stringify(g("cellStyles['8D']")) + '|' + JSON.stringify(g("cellStyles['8E']")));
+  g("undo();");
+
   // 5x2. type-to-edit (Excel/Sheets style)
   g("document.activeElement && document.activeElement.blur();");
   window.setSelection(6, 2, false);
