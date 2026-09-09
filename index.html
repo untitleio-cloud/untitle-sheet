@@ -3295,8 +3295,18 @@ function attachAutocomplete(editor, cellEl, row) {
     }
     if (mode === 'coingecko') {
       acResults = cgLocalMatches(q);
+      const seenS = {};
+      acResults.forEach(r => { seenS[r.ticker] = true; });
+      const qlS = (q || '').toLowerCase();
+      for (const [t, n] of POPULAR_US) {
+        if (seenS[t]) continue;
+        if (!qlS || t.toLowerCase().includes(qlS) || n.toLowerCase().includes(qlS)) {
+          acResults.push({ ticker: t, realName: n + ' (tokenized)', type: 'stock' });
+          seenS[t] = true;
+        }
+      }
       renderList();
-      if (!q) { status.textContent = 'CoinGecko built-in list'; return; }
+      if (!q) { status.textContent = 'CoinGecko crypto + tokenized stocks'; return; }
       status.textContent = 'Searching CoinGecko\u2026';
       const seq = ++acSeq;
       acTimer = setTimeout(() => {
@@ -3312,7 +3322,8 @@ function attachAutocomplete(editor, cellEl, row) {
               const t = String(c.symbol || '').toUpperCase();
               if (!/^[A-Z][A-Z0-9.\-]{0,11}$/.test(t) || seen[t]) return;
               seen[t] = true;
-              extra.push({ ticker: t, realName: c.name, type: 'crypto', cgId: c.id });
+              const tok = /tokenized|-xstock$/.test(String(c.id || ''));
+              extra.push({ ticker: t, realName: c.name + (tok ? ' (tokenized)' : ''), type: tok ? 'stock' : 'crypto', cgId: c.id });
             });
             acResults = acResults.concat(extra);
             renderList();
@@ -3537,14 +3548,42 @@ let cgNetFails = 0;
 
 const CG_IDS = { BTC: 'bitcoin', ETH: 'ethereum', SOL: 'solana', DOGE: 'dogecoin', XRP: 'ripple', ADA: 'cardano', BNB: 'binancecoin', AVAX: 'avalanche-2', LINK: 'chainlink', MATIC: 'polygon-pos', DOT: 'polkadot', TRX: 'tron', SHIB: 'shiba-inu', UNI: 'uniswap', LTC: 'litecoin', PEPE: 'pepe' };
 
-function cgIdFor(ticker) {
+function cgIdFor(ticker, type) {
   const t = ticker.toUpperCase();
   const a = Object.values(rowAssets).find(x => x.ticker.toUpperCase() === t && x.cgId);
-  return a ? a.cgId : (CG_IDS[t] || null);
+  if (a) return a.cgId;
+  return type === 'stock' ? null : (CG_IDS[t] || null);
 }
 
-async function fetchCoinGeckoTicker(ticker) {
-  const id = cgIdFor(ticker);
+const CG_STOCK_PRIO = ['coinbase-tokenized', 'robinhood-tokenized', 'ondo-tokenized', 'tokenized', 'xstock'];
+
+async function cgStockId(ticker) {
+  const t = ticker.toUpperCase();
+  let cache = {};
+  try { cache = JSON.parse(localStorage.getItem('cgStockIds') || 'null') || {}; } catch(e) {}
+  if (t in cache) return cache[t];
+  try {
+    const res = await fetch('https://api.coingecko.com/api/v3/search?query=' + encodeURIComponent(t));
+    if (!res.ok) return null;
+    const d = await res.json();
+    let best = null, bestScore = 99;
+    ((d && d.coins) || []).forEach(c => {
+      const id = String(c.id || '');
+      if (!/tokenized|-xstock$/.test(id)) return;
+      if (String(c.symbol || '').toUpperCase() !== t) return;
+      let score = 99;
+      CG_STOCK_PRIO.forEach((p, i) => { if (score === 99 && id.includes(p)) score = i; });
+      if (score < bestScore) { bestScore = score; best = id; }
+    });
+    cache[t] = best;
+    localStorage.setItem('cgStockIds', JSON.stringify(cache));
+    return best;
+  } catch(e) { return null; }
+}
+
+async function fetchCoinGeckoTicker(ticker, type) {
+  let id = cgIdFor(ticker, type);
+  if (!id && type === 'stock') id = await cgStockId(ticker);
   if (!id || Date.now() < cgLimitedUntil) return false;
   try {
     const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=' + encodeURIComponent(id) + '&vs_currencies=usd&include_24hr_change=true');
@@ -3593,7 +3632,7 @@ async function fetchOkxTicker(ticker) {
 async function fetchTicker(ticker, type) {
   if (dataSource === 'selfhost') return fetchSelfhostTicker(ticker, type);
   if (dataSource === 'hyperliquid') return fetchHyperliquidTicker(ticker);
-  if (dataSource === 'coingecko') return type === 'crypto' ? fetchCoinGeckoTicker(ticker) : Promise.resolve(false);
+  if (dataSource === 'coingecko') return fetchCoinGeckoTicker(ticker, type);
   if (dataSource === 'bybit') return fetchBybitTicker(ticker, type);
   if (dataSource === 'okx') return type === 'crypto' ? fetchOkxTicker(ticker) : Promise.resolve(false);
   return fetchBinanceTicker(ticker);
@@ -3609,7 +3648,7 @@ async function fetchPrices() {
   let ok = false;
   const assets = Object.values(rowAssets);
 
-  const eligible = a => dataSource === 'binance' ? binanceEligible(a) : ['coingecko', 'okx'].indexOf(dataSource) !== -1 ? a.type === 'crypto' : true;
+  const eligible = a => dataSource === 'binance' ? binanceEligible(a) : dataSource === 'okx' ? a.type === 'crypto' : true;
   const typeOf = {};
   assets.forEach(a => { typeOf[a.ticker] = a.type; });
   const tickers = [...new Set(assets.filter(eligible).map(a => a.ticker))];
@@ -3628,7 +3667,7 @@ function hasPendingBound() {
   return Object.values(rowAssets).some(a => {
     if (prices[a.ticker]) return false;
     if (dataSource === 'binance') return binanceEligible(a);
-    if (['coingecko', 'okx'].indexOf(dataSource) !== -1) return a.type === 'crypto';
+    if (dataSource === 'okx') return a.type === 'crypto';
     return true;
   });
 }
@@ -3852,13 +3891,13 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.44';
+const APP_BUILD = '2026-09-05.45';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
   ['binance', 'Binance', 'fapi.binance.com \u00B7 crypto + stock perpetuals'],
   ['hyperliquid', 'Hyperliquid', 'api.hyperliquid.xyz \u00B7 free \u00B7 crypto + 100+ stock perps'],
-  ['coingecko', 'CoinGecko', 'api.coingecko.com \u00B7 free \u00B7 crypto only (no stocks)'],
+  ['coingecko', 'CoinGecko', 'api.coingecko.com \u00B7 free \u00B7 crypto + tokenized US stocks'],
   ['bybit', 'Bybit', 'api.bybit.com \u00B7 free \u00B7 crypto + tokenized US stocks (xStocks)'],
   ['okx', 'OKX', 'www.okx.com \u00B7 free \u00B7 crypto only (USDT pairs)'],
 ];

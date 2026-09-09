@@ -40,9 +40,18 @@ function routes(url, body) {
     const e = db[inst];
     return { code: '0', data: e ? [{ instId: inst, last: e[0], open24h: e[1] }] : [] };
   }
+  if (url.includes('api.coingecko.com/api/v3/search')) {
+    const q = decodeURIComponent((url.match(/query=([^&]+)/) || [])[1] || '').toUpperCase();
+    const coins = q === 'AAPL' ? [
+      { id: 'apple-xstock', symbol: 'AAPL', name: 'Apple xStock' },
+      { id: 'apple-coinbase-tokenized-stock', symbol: 'AAPL', name: 'Apple (Coinbase Tokenized Stock)' },
+      { id: 'apple', symbol: 'AAPL', name: 'Apple Token' },
+    ] : [];
+    return { coins };
+  }
   if (url.includes('api.coingecko.com/api/v3/simple/price')) {
     const ids = decodeURIComponent((url.match(/ids=([^&]+)/) || [])[1] || '').split(',');
-    const db = { bitcoin: { usd: 70000, usd_24h_change: 1.5 }, ethereum: { usd: 2500, usd_24h_change: 2 } };
+    const db = { bitcoin: { usd: 70000, usd_24h_change: 1.5 }, ethereum: { usd: 2500, usd_24h_change: 2 }, 'apple-coinbase-tokenized-stock': { usd: 228.15, usd_24h_change: 0.63 } };
     const out = {};
     ids.forEach(i => { if (db[i]) out[i] = db[i]; });
     return out;
@@ -367,6 +376,15 @@ function check(name, cond, detail) {
   g("lastEscTime = 0;");
   document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
   check('BMC 모달 Esc 닫힘', !document.querySelector('.modal-overlay'));
+
+  // 5y6a. CoinGecko tokenized stocks
+  g("localStorage.removeItem('cgStockIds'); applyDataSource('coingecko');");
+  await g("refreshMarket(true)");
+  check('CG: tokenized stock fetch', g("prices['AAPL'] && prices['AAPL'].src === 'coingecko' && prices['AAPL'].price === 228.15"), JSON.stringify(g("prices['AAPL']")));
+  check('CG: stock id cache (우선순위 coinbase-tokenized)', g("JSON.parse(localStorage.getItem('cgStockIds')).AAPL") === 'apple-coinbase-tokenized-stock', g("localStorage.getItem('cgStockIds')"));
+  check('CG: crypto 유지', g("prices['BTC'] && prices['BTC'].price === 70000"), JSON.stringify(g("prices['BTC']")));
+  g("applyDataSource('binance');");
+  await g("refreshMarket(true)");
 
   // 5y6b. Bybit / OKX sources
   check('SRC_META with Bybit/OKX', g("SRC_META.some(m => m[0] === 'bybit') && SRC_META.some(m => m[0] === 'okx')"), '');
