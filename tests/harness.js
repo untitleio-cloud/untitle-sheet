@@ -172,7 +172,7 @@ function check(name, cond, detail) {
   g("resetEverything();");
   await wait(4000);
   check('Reset everything: 전 초기화(열 구조 포함)', g("colMap.price") === 2 && g("cellData['0C']") === 'Unit Price (USD)', g("colMap.price") + '/' + g("cellData['0C']"));
-  check('Reset everything: 라벨 기본 배치(A~G)', g("cellData['0A']") === 'Item Code' && g("cellData['0G']") === 'Status' && g("cellData['0H'] === undefined") === true, String(g("cellData['0H']")));
+  check('Reset everything: 라벨 기본 배치(A~G)', g("cellData['0A']") === 'Code' && g("cellData['0G']") === 'Status' && g("cellData['0H'] === undefined") === true, String(g("cellData['0H']")));
   check('Reset everything: 시세 기본 위치', g("cellData['1C']") === '190.12', g("cellData['1C']"));
   const h1r = document.querySelector('.header-title h1');
   h1r.textContent = 'Q3 Plan';
