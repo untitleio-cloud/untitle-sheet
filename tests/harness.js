@@ -167,11 +167,11 @@ function check(name, cond, detail) {
   window.confirm = () => true;
   g("insertCol(1);");
   g("resetTextFormatting();");
-  check('Reset: 헤더 라벨 colMap 정렬', g("cellData['0D']") === 'Unit Price (USD)' && g("cellData['0B'] === undefined") === true, g("cellData['0B']") + '/' + g("cellData['0D']"));
+  check('Reset: 헤더 라벨 colMap 정렬', g("cellData['0D']") === 'Budget (USD)' && g("cellData['0B'] === undefined") === true, g("cellData['0B']") + '/' + g("cellData['0D']"));
   check('Reset: 시세 정상 위치', g("cellData['1D']") === '190.12', g("cellData['1D']"));
   g("resetEverything();");
   await wait(4000);
-  check('Reset everything: 전 초기화(열 구조 포함)', g("colMap.price") === 2 && g("cellData['0C']") === 'Unit Price (USD)', g("colMap.price") + '/' + g("cellData['0C']"));
+  check('Reset everything: 전 초기화(열 구조 포함)', g("colMap.price") === 2 && g("cellData['0C']") === 'Budget (USD)', g("colMap.price") + '/' + g("cellData['0C']"));
   check('Reset everything: 라벨 기본 배치(A~G)', g("cellData['0A']") === 'Code' && g("cellData['0G']") === 'Status' && g("cellData['0H'] === undefined") === true, String(g("cellData['0H']")));
   check('Reset everything: 시세 기본 위치', g("cellData['1C']") === '190.12', g("cellData['1C']"));
   const h1r = document.querySelector('.header-title h1');
@@ -193,7 +193,7 @@ function check(name, cond, detail) {
   g("updateMarketData(false);");
   g("insertCol(1); saveData(); saveLayout();");
   g("initCellData();");
-  check('Reload 시드: 추가 열 무침범', g("cellData['0B'] === undefined") === true && g("cellData['1B'] === undefined") === true && g("cellData['0D']") === 'Unit Price (USD)' && g("cellData['1D']") === '190.12',
+  check('Reload 시드: 추가 열 무침범', g("cellData['0B'] === undefined") === true && g("cellData['1B'] === undefined") === true && g("cellData['0D']") === 'Budget (USD)' && g("cellData['1D']") === '190.12',
     g("cellData['0B']") + '/' + g("cellData['1B']") + '/' + g("cellData['0D']") + '/' + g("cellData['1D']"));
   g("undo();");
   window.setSelection(8, 2, false);
