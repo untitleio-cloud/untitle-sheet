@@ -3643,6 +3643,27 @@ function binanceEligible(a) {
   return a.type === 'crypto';
 }
 
+async function fetchCoinGeckoBatch(entries) {
+  const ids = [...new Set(entries.map(e => e.id).filter(Boolean))];
+  if (!ids.length || Date.now() < cgLimitedUntil) return false;
+  try {
+    const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=' + encodeURIComponent(ids.join(',')) + '&vs_currencies=usd&include_24hr_change=true');
+    if (res.status === 429) { cgLimitedUntil = Date.now() + 60000; return false; }
+    if (res.status === 451 || res.status === 403) { sourceHealth.coingecko = 'blocked'; return false; }
+    if (!res.ok) { if (++cgNetFails >= 2) sourceHealth.coingecko = 'blocked'; return false; }
+    const d = await res.json();
+    let any = false;
+    entries.forEach(e => {
+      const ev = d && d[e.id];
+      if (ev && isFinite(ev.usd) && ev.usd > 0) {
+        prices[e.ticker] = { price: ev.usd, change: isFinite(ev.usd_24h_change) ? ev.usd_24h_change : 0, src: 'coingecko' };
+        any = true;
+      }
+    });
+    return any;
+  } catch(e) { if (++cgNetFails >= 2) sourceHealth.coingecko = 'blocked'; return false; }
+}
+
 async function fetchPrices() {
   prices = {};
   let ok = false;
@@ -3651,6 +3672,20 @@ async function fetchPrices() {
   const eligible = a => dataSource === 'binance' ? binanceEligible(a) : dataSource === 'okx' ? a.type === 'crypto' : true;
   const typeOf = {};
   assets.forEach(a => { typeOf[a.ticker] = a.type; });
+
+  if (dataSource === 'coingecko') {
+    const seen = {};
+    const entries = [];
+    for (const a of assets) {
+      if (seen[a.ticker]) continue;
+      seen[a.ticker] = true;
+      let id = cgIdFor(a.ticker, a.type);
+      if (!id && a.type === 'stock') id = await cgStockId(a.ticker);
+      if (id) entries.push({ ticker: a.ticker, id });
+    }
+    return fetchCoinGeckoBatch(entries);
+  }
+
   const tickers = [...new Set(assets.filter(eligible).map(a => a.ticker))];
   for (let i = 0; i < tickers.length; i++) {
     if (await fetchTicker(tickers[i], typeOf[tickers[i]])) ok = true;
@@ -3891,7 +3926,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.48';
+const APP_BUILD = '2026-09-05.49';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
@@ -4593,7 +4628,7 @@ function feedSymbolsChanged() {
 }
 
 // ===== REFRESH / AUTO SYNC =====
-const BASE_SYNC_MS = 30000;
+const BASE_SYNC_MS = 15000;
 const MIN_FETCH_GAP_MS = 15000;
 let lastFetchAt = 0;
 let liveMode = false;
