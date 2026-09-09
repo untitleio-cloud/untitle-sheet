@@ -694,6 +694,9 @@ body {
   font-size: 16px;
 }
 .sheet-add:hover { background: var(--bg-hover); }
+.cg-credit { margin-left: auto; padding-right: 10px; font-size: 10.5px; color: var(--text-disabled); }
+.cg-credit a { color: inherit; text-decoration: none; }
+.cg-credit a:hover { text-decoration: underline; }
 
 /* Autocomplete panel */
 .ac-panel {
@@ -917,6 +920,7 @@ body {
   <div class="sheet-tab active">Sheet1</div>
   <div class="sheet-tab">Sheet2</div>
   <div class="sheet-tab">Sheet3</div>
+  <span class="cg-credit" id="cgCredit" hidden>Prices by <a href="https://www.coingecko.com" target="_blank" rel="noopener">CoinGecko</a></span>
 </div>
 
 <!-- Autocomplete panel -->
@@ -1307,6 +1311,7 @@ function renderGrid() {
   applySelectionHighlight(false);
   applyHeaderActiveState();
   if (selectedCell) updateCellName(selectedCell);
+  updateCGCredit();
 }
 
 // ===== RESIZE =====
@@ -3792,7 +3797,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.41';
+const APP_BUILD = '2026-09-05.42';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
@@ -4270,6 +4275,11 @@ function loadLastPrices() {
 }
 
 const SRC_NAMES = { binance: 'Binance', coinbase: 'Coinbase', coingecko: 'CoinGecko', finnhub: 'Finnhub', selfhost: 'Self-hosted', hyperliquid: 'Hyperliquid' };
+
+function updateCGCredit() {
+  const el = document.getElementById('cgCredit');
+  if (el) el.hidden = !(dominantSrc() === 'coingecko' || dataSource === 'coingecko');
+}
 
 function dominantSrc() {
   const cnt = {};
