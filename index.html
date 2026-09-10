@@ -118,6 +118,13 @@ body {
 .bd-item svg { width: 18px; height: 18px; flex: none; color: #444; }
 .bd-sep { height: 1px; background: #e0e0e0; margin: 5px 0; }
 .header-menu .menu-item.open { background: #d3e3fd; color: #0b57d0; }
+.dd-mobile {
+  max-height: 72vh;
+  overflow-y: auto;
+  min-width: 230px;
+  border-radius: 10px !important;
+}
+.dd-back { color: var(--accent-blue); font-weight: 500; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
 .menu-dropdown {
   position: fixed;
   z-index: 900;
@@ -3025,6 +3032,32 @@ document.querySelector('.header-menu').addEventListener('click', (e) => {
 });
 document.addEventListener('click', () => document.querySelector('.header-menu').classList.remove('open'));
 
+function isMobileUI() { return window.matchMedia && window.matchMedia('(max-width: 768px)').matches; }
+
+function openMenuDrawer() {
+  const hm = document.querySelector('.header-menu');
+  hm.style.top = (document.querySelector('.header').getBoundingClientRect().bottom + 4) + 'px';
+  hm.classList.add('open');
+}
+
+function mobileAnchor(dd, key) {
+  if (!isMobileUI()) return;
+  dd.classList.add('dd-mobile');
+  dd.style.left = '8px';
+  dd.style.top = (document.querySelector('.header').getBoundingClientRect().bottom + 4) + 'px';
+  const back = document.createElement('div');
+  back.className = 'md-item dd-back';
+  back.textContent = '\u2190 Back';
+  back.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const mi = document.querySelector('.menu-item[data-menu="' + key + '"]');
+    if (mi) mi.click();
+    openMenuDrawer();
+  });
+  dd.insertBefore(back, dd.firstChild);
+}
+
 function buildMobileToolbar() {
   if (!(window.matchMedia && window.matchMedia('(max-width: 768px)').matches)) return;
   if (document.getElementById('tbMore')) return;
@@ -4025,6 +4058,7 @@ document.querySelector('[data-menu="file"]').addEventListener('click', (e) => {
   fileMenu.className = 'menu-dropdown';
   fileMenu.style.left = rect.left + 'px';
   fileMenu.style.top = rect.bottom + 'px';
+  mobileAnchor(fileMenu, 'file');
   const mk = (label, fn, danger) => {
     const d = document.createElement('div');
     d.className = 'md-item' + (danger ? ' danger' : '');
@@ -4066,7 +4100,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.59';
+const APP_BUILD = '2026-09-05.60';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
@@ -4374,6 +4408,7 @@ Object.entries(SOON_MENUS).forEach(([k, items]) => {
     dd.className = 'menu-dropdown';
     dd.style.left = rect.left + 'px';
     dd.style.top = rect.bottom + 'px';
+    mobileAnchor(dd, e.currentTarget.dataset.menu);
     items.forEach(label => {
       const d = document.createElement('div');
       d.className = 'md-item soon';
@@ -4411,6 +4446,7 @@ document.querySelector('[data-menu="tools"]').addEventListener('click', (e) => {
   toolsMenu.className = 'menu-dropdown';
   toolsMenu.style.left = rect.left + 'px';
   toolsMenu.style.top = rect.bottom + 'px';
+  mobileAnchor(toolsMenu, 'tools');
   const mk = (label, fn) => {
     const d = document.createElement('div');
     d.className = 'md-item';
@@ -4440,6 +4476,7 @@ document.querySelector('[data-menu="help"]').addEventListener('click', (e) => {
   helpMenu.className = 'menu-dropdown';
   helpMenu.style.left = rect.left + 'px';
   helpMenu.style.top = rect.bottom + 'px';
+  mobileAnchor(helpMenu, 'help');
   const mk = (label, fn) => {
     const d = document.createElement('div');
     d.className = 'md-item';
@@ -4470,6 +4507,7 @@ document.querySelector('[data-menu="edit"]').addEventListener('click', (e) => {
   editMenu.className = 'menu-dropdown';
   editMenu.style.left = rect.left + 'px';
   editMenu.style.top = rect.bottom + 'px';
+  mobileAnchor(editMenu, 'edit');
   const mkE = (label, fn, disabled) => {
     const d = document.createElement('div');
     d.className = 'md-item' + (disabled ? ' disabled' : '');
