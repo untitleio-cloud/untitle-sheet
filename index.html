@@ -2413,7 +2413,15 @@ function htmlPasteGrid(html) {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     const rules = cssClassRules(doc);
     const trs = Array.from(doc.querySelectorAll('tr'));
-    if (!trs.length) return null;
+    if (!trs.length) {
+      const roots = Array.from(doc.querySelectorAll('[data-sheets-root]'));
+      if (!roots.length) return null;
+      const row0 = roots.map(sp => ({
+        val: (sp.textContent || '').replace(/\u00a0/g, ' ').trim(),
+        style: htmlCellStyle(cellStyleStr(sp, rules)),
+      }));
+      return [row0];
+    }
     const grid = [];
     let maxC = 0;
     trs.forEach((tr, r) => {
@@ -4162,7 +4170,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.65';
+const APP_BUILD = '2026-09-05.66';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
