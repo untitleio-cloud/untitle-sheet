@@ -351,7 +351,7 @@ function check(name, cond, detail) {
   const cBB = document.querySelector('[data-row=\"4\"][data-col=\"1\"]');
   const cCB = document.querySelector('[data-row=\"4\"][data-col=\"2\"]');
   const cAA = document.querySelector('[data-row=\"3\"][data-col=\"1\"]');
-  check('공유 변 단일선(실제 border)', cCB.style.borderLeft === '' && cCB.style.borderRight === '1px solid #5f6368' && cBB.style.borderBottom === '1px solid #5f6368' && cAA.style.borderBottom === '1px solid #5f6368' && cCB.style.borderTop === '1px solid #5f6368',
+  check('공유 변 단일선(실제 border)', cCB.style.borderLeft === '' && cCB.style.borderRight === '1px solid #5f6368' && cBB.style.borderBottom === '1px solid #5f6368' && cAA.style.borderBottom === '1px solid #5f6368' && cCB.style.borderTop === '' && document.querySelector('[data-row=\"3\"][data-col=\"2\"]').style.borderBottom === '1px solid #5f6368',
     [cCB.style.borderLeft, cCB.style.borderRight, cBB.style.borderBottom, cAA.style.borderBottom, cCB.style.borderTop].join('|'));
   g("applyBorder('none');");
   check('보더 none: 전멸', g("cellStyles['4B'] === undefined || cellStyles['4B'].bd === undefined") === true, JSON.stringify(g("cellStyles['4B'] || {}")));
