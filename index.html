@@ -1398,8 +1398,8 @@ function renderGrid() {
       const BC = '#5f6368';
       const bW = Math.max(wOf(selfBd, 'b'), wOf(belowBd, 't'));
       const rW = Math.max(wOf(selfBd, 'r'), wOf(rightBd, 'l'));
-      const tW = aboveBd ? 0 : wOf(selfBd, 't');
-      const lW = leftBd ? 0 : wOf(selfBd, 'l');
+      const tW = r > 0 ? 0 : wOf(selfBd, 't');
+      const lW = c > 0 ? 0 : wOf(selfBd, 'l');
       if (bW) cell.style.borderBottom = bW + 'px solid ' + BC;
       if (rW) cell.style.borderRight = rW + 'px solid ' + BC;
       if (tW) cell.style.borderTop = tW + 'px solid ' + BC;
@@ -4197,7 +4197,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.70';
+const APP_BUILD = '2026-09-05.71';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
