@@ -2377,10 +2377,18 @@ function htmlCellStyle(styleStr) {
 function cssClassRules(doc) {
   const map = {};
   doc.querySelectorAll('style').forEach(st => {
-    (st.textContent || '').replace(/\.([A-Za-z0-9_-]+)[^{]*\{([^}]*)\}/g, (m0, cls, body) => {
-      map[cls] = (map[cls] ? map[cls] + ';' : '') + body;
-      return '';
-    });
+    const txt = (st.textContent || '').replace(/<!--|-->|--!>|<!--/g, '');
+    const re = /([^{}]+)\{([^{}]*)\}/g;
+    let m;
+    while ((m = re.exec(txt))) {
+      const sel = m[1].trim();
+      const names = sel.match(/\.([A-Za-z0-9_-]+)/g);
+      if (!names) continue;
+      names.forEach(n => {
+        const cls = n.slice(1);
+        map[cls] = (map[cls] ? map[cls] + ';' : '') + m[2];
+      });
+    }
   });
   return map;
 }
@@ -4171,7 +4179,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.67';
+const APP_BUILD = '2026-09-05.68';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
