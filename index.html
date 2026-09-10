@@ -566,6 +566,21 @@ body {
   background: rgba(26, 115, 232, 0.08);
   box-shadow: inset 0 0 0 1px #1a73e8;
 }
+.grid-cell.img-cell { overflow: visible; }
+.cell-img {
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  height: 132px;
+  width: auto;
+  max-width: 360px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  z-index: 6;
+  pointer-events: none;
+}
 .grid-cell {
   border-right: 1px solid var(--border-light);
   border-bottom: 1px solid var(--border-light);
@@ -1310,7 +1325,11 @@ function initCellData() {
 }
 
 function saveData() {
-  localStorage.setItem('sheetData', JSON.stringify({ data: cellData, styles: cellStyles }));
+  try {
+    localStorage.setItem('sheetData', JSON.stringify({ data: cellData, styles: cellStyles }));
+  } catch (e) {
+    showToast('Storage full \u2014 remove some images (Ctrl+Z undoes the paste)');
+  }
 }
 
 // ===== GRID RENDERING =====
@@ -1377,7 +1396,17 @@ function renderGrid() {
 
       const content = document.createElement('span');
       content.className = 'cell-content';
-      content.textContent = displayValue(ref);
+      const rawVal = cellData[ref];
+      const isImg = typeof rawVal === 'string' && rawVal.startsWith('img:');
+      content.textContent = isImg ? '' : displayValue(ref);
+      if (isImg) {
+        cell.classList.add('img-cell');
+        const im = document.createElement('img');
+        im.src = rawVal.slice(4);
+        im.className = 'cell-img';
+        im.alt = '[Image]';
+        cell.appendChild(im);
+      }
 
       const style = cellStyles[ref] || {};
       if (style.bold) cell.classList.add('cell-bold');
@@ -1517,7 +1546,8 @@ function updateCellName(cell) {
     nameEl.textContent = cellRefLabel(cell.row, cell.col);
   }
   const ref = getCellRef(cell.row, cell.col);
-  const val = cellData[ref] || '';
+  let val = cellData[ref] || '';
+  if (typeof val === 'string' && val.startsWith('img:')) val = '[Image]';
   if (cell.col === colMap.code && cell.row >= 1 && rowAssets[cell.row]) {
     const asset = rowAssets[cell.row];
     document.getElementById('formulaInput').value = val + ' (' + asset.realName + ')';
@@ -1982,6 +2012,7 @@ function displayValue(ref) {
     try { return formatFormulaResult(evalFormula(val, new Set([ref]))); }
     catch (e) { return e.message === 'circular' ? '#CYCLE!' : '#ERROR!'; }
   }
+  if (typeof val === 'string' && val.startsWith('img:')) return '[Image]';
   return val;
 }
 
@@ -2523,10 +2554,53 @@ function pasteExternalText(text, html) {
   showToast('Pasted ' + rows.length + ' row(s)');
 }
 
+function pasteImage(file) {
+  if (!selectedCell) selectCell(1, 0);
+  if (!selectedCell) return;
+  const ref = selectedCell.row + COL_HEADERS[selectedCell.col];
+  const reader = new FileReader();
+  reader.onload = () => {
+    const raw = String(reader.result);
+    let done = false;
+    const finish = out => {
+      if (done) return;
+      done = true;
+      pushHistory();
+      cellData[ref] = 'img:' + out;
+      saveData();
+      renderGrid();
+      showToast('Image pasted');
+    };
+    setTimeout(() => finish(raw), 900);
+    try {
+      const im = new Image();
+      im.onload = () => {
+        try {
+          const scale = Math.min(1, 1000 / Math.max(im.width || 1, im.height || 1));
+          if (scale === 1 && raw.length < 400000) { finish(raw); return; }
+          const cv = document.createElement('canvas');
+          cv.width = Math.max(1, Math.round((im.width || 100) * scale));
+          cv.height = Math.max(1, Math.round((im.height || 100) * scale));
+          const cx = cv.getContext('2d');
+          cx.fillStyle = '#ffffff';
+          cx.fillRect(0, 0, cv.width, cv.height);
+          cx.drawImage(im, 0, 0, cv.width, cv.height);
+          finish(cv.toDataURL('image/jpeg', 0.82));
+        } catch (e2) { finish(raw); }
+      };
+      im.onerror = () => finish(raw);
+      im.src = raw;
+    } catch (e) { finish(raw); }
+  };
+  reader.readAsDataURL(file);
+}
+
 document.addEventListener('paste', (e) => {
   const ae = document.activeElement;
   if (ae && (ae.tagName === 'INPUT' || ae.isContentEditable)) return;
   const cb = e.clipboardData || window.clipboardData;
+  const imgFile = cb && cb.files && cb.files.length && Array.from(cb.files).find(f => f.type && f.type.indexOf('image/') === 0);
+  if (imgFile) { e.preventDefault(); pasteImage(imgFile); return; }
   const text = (cb && cb.getData('text/plain')) || '';
   const html = (cb && cb.getData('text/html')) || '';
   if (!text && !html) {
@@ -2576,7 +2650,8 @@ function startEdit(row, col) {
   const editor = document.createElement('input');
   editor.className = 'cell-editor';
   editor.type = 'text';
-  editor.value = cellData[ref] || '';
+  const rawStart = cellData[ref] || '';
+  editor.value = typeof rawStart === 'string' && rawStart.startsWith('img:') ? '' : rawStart;
   el.appendChild(editor);
   editor.focus();
   editor.select();
@@ -4197,7 +4272,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.71';
+const APP_BUILD = '2026-09-05.73';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [

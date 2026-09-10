@@ -257,6 +257,26 @@ function check(name, cond, detail) {
   check('선택 없이 붙여넣기 → 첫 데이터 셀', g("cellData['1A']") === 'TOP' && g("cellStyles['1A'].bold") === true, g("cellData['1A']") + '|' + JSON.stringify(g("cellStyles['1A']")));
   g("undo();");
 
+  // 5x1b. image/chart paste into cell
+  {
+    const FileReaderBak = window.FileReader;
+    Object.defineProperty(window, 'FileReader', { value: class { readAsDataURL() { this.result = 'data:image/png;base64,iVBORw0KGgo='; setTimeout(() => this.onload && this.onload(), 0); } }, configurable: true, writable: true });
+    g("selectCell(3, 7);");
+    const fakeFile = { name: 'chart.png', type: 'image/png' };
+    const evImg = new window.Event('paste', { bubbles: true, cancelable: true });
+    Object.defineProperty(evImg, 'clipboardData', { value: { files: [fakeFile], getData: () => '' } });
+    document.activeElement && document.activeElement.blur();
+    document.dispatchEvent(evImg);
+    let imgVal = '';
+    for (let i = 0; i < 30; i++) { imgVal = g("cellData['3H']"); if (typeof imgVal === 'string' && imgVal.startsWith('img:')) break; await wait(100); }
+    check('이미지 붙여넣기 -> img: 값', typeof imgVal === 'string' && imgVal.startsWith('img:data:image/png'), String(imgVal).slice(0, 30));
+    check('이미지 셀 렌더(img-cell + img)', !!document.querySelector('[data-row="3"][data-col="7"] .cell-img'), '');
+    check('이미지 수식바 = [Image]', g("displayValue('3H')") === '[Image]', g("displayValue('3H')"));
+    g("undo();");
+    check('undo -> 이미지 제거(원값 복구)', !String(g("cellData['3H']")).startsWith('img:'), String(g("cellData['3H']")));
+    window.FileReader = FileReaderBak;
+  }
+
   // 5x1c. Excel Mac Office-HTML (style block inside HTML comment, class rules)
   window.setSelection(8, 2, false);
   const evMac = new window.Event('paste', { bubbles: true, cancelable: true });
