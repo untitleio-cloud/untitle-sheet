@@ -399,6 +399,17 @@ function check(name, cond, detail) {
   check('메뉴 항목 클릭 -> 드로어 닫힘', !document.querySelector('.header-menu').classList.contains('open'), '');
   document.getElementById('fileMenu') && document.getElementById('fileMenu').classList.remove('show');
 
+  // 5y4f. 2-depth drawer menus
+  window.matchMedia = q => ({ matches: q.includes('768'), addListener(){}, removeListener(){} });
+  document.getElementById('menuToggle').click();
+  document.querySelector('.menu-item[data-menu="file"]').click();
+  const ddM = document.querySelector('.menu-dropdown.dd-mobile');
+  check('모바일 메뉴 2뎁스: 헤더 아래 고정 + Back', !!ddM && !!ddM.querySelector('.dd-back'), String(!!ddM));
+  ddM.querySelector('.dd-back').dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+  check('Back -> 메뉴 닫히고 드로어 재오픈', !document.querySelector('.menu-dropdown') && document.querySelector('.header-menu').classList.contains('open'), '');
+  document.body.click();
+  window.matchMedia = undefined;
+
   // 5y4e. Mobile toolbar restructure
   window.matchMedia = q => ({ matches: q.includes('768'), addListener(){}, removeListener(){} });
   g("buildMobileToolbar();");
