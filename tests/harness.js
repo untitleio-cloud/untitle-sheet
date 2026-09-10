@@ -257,6 +257,27 @@ function check(name, cond, detail) {
   check('선택 없이 붙여넣기 → 첫 데이터 셀', g("cellData['1A']") === 'TOP' && g("cellStyles['1A'].bold") === true, g("cellData['1A']") + '|' + JSON.stringify(g("cellStyles['1A']")));
   g("undo();");
 
+  // 5x1d. column insert/delete remaps colMap + formula refs
+  {
+    g("cellData['8H'] = '=C2*D2';");
+    g("insertCol(3);");
+    check('insertCol: colMap 이동', g("colMap.inv") === 5 && g("colMap.budget") === 6 && g("colMap.status") === 7, JSON.stringify(g("colMap")));
+    check('insertCol: 수식 참조 이동', g("cellData['8I']") === '=C2*E2', String(g("cellData['8I']")));
+    g("deleteCols(3, 3);");
+    check('deleteCols(빈 열): colMap 복구', g("colMap.inv") === 4 && g("colMap.budget") === 5 && g("colMap.status") === 6, JSON.stringify(g("colMap")));
+    check('deleteCols(빈 열): 수식 참조 복구', g("cellData['8H']") === '=C2*D2', String(g("cellData['8H']")));
+    g("deleteCols(3, 3);");
+    check('deleteCols(Progress 열): colMap 재매핑', g("colMap.change") === undefined && g("colMap.inv") === 3 && g("colMap.budget") === 4 && g("colMap.status") === 5, JSON.stringify(g("colMap")));
+    check('deleteCols: 예산 수식 재생성', g("cellData['1E']") === '=C2*D2', String(g("cellData['1E']")));
+    const savedLayout = JSON.parse(window.localStorage.getItem('sheetLayout') || '{}');
+    check('deleteCols: colMap이 localStorage에 영속화(새로고침 안전)', savedLayout.colMap && savedLayout.colMap.change === undefined && savedLayout.colMap.inv === 3 && savedLayout.colMap.budget === 4, JSON.stringify(savedLayout.colMap));
+    check('deleteCols: 삭제열 참조 -> #REF!', String(g("cellData['8G']")).indexOf('#REF!') > -1, String(g("cellData['8G']")));
+    g("displayValue('1E')");
+    check('삭제 후 예산 계산 정상', /^[0-9.,]+$/.test(String(g("displayValue('1E')"))), String(g("displayValue('1E')")));
+    g("undo();");
+    check('undo: colMap 원복', g("colMap.change") === 3 && g("colMap.inv") === 4, JSON.stringify(g("colMap")));
+  }
+
   // 5x1c. Excel Mac Office-HTML (style block inside HTML comment, class rules)
   window.setSelection(8, 2, false);
   const evMac = new window.Event('paste', { bubbles: true, cancelable: true });

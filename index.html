@@ -2119,10 +2119,23 @@ function refreshBudgetFormulas() {
   });
 }
 
+function remapFormulaRefs(mapper) {
+  Object.keys(cellData).forEach(k => {
+    const v = cellData[k];
+    if (typeof v === 'string' && v[0] === '=') {
+      cellData[k] = v.replace(/([A-Z])(\d+)/g, (m0, L, d) => {
+        const n = mapper(COL_HEADERS.indexOf(L));
+        return n === null ? '#REF!' + d : COL_HEADERS[n] + d;
+      });
+    }
+  });
+}
+
 function insertCol(at) {
   if (at < 0 || at > COLS - 1) return;
   pushHistory();
   Object.keys(colMap).forEach(k => { if (colMap[k] >= at) colMap[k]++; });
+  remapFormulaRefs(c => (c >= at ? c + 1 : c));
   for (let c = COLS - 1; c > at; c--) {
     const L = COL_HEADERS[c], P = COL_HEADERS[c - 1];
     for (let r = 0; r < ROWS; r++) {
@@ -2155,8 +2168,14 @@ function deleteCols(c1, c2) {
       if (srcS !== undefined) cellStyles[to] = srcS; else delete cellStyles[to];
     }
   }
+  remapFormulaRefs(c => (c >= c1 && c <= c2) ? null : (c > c2 ? c - w : c));
+  Object.keys(colMap).forEach(k => {
+    if (colMap[k] >= c1 && colMap[k] <= c2) delete colMap[k];
+    else if (colMap[k] > c2) colMap[k] -= w;
+  });
   refreshBudgetFormulas();
   saveData();
+  saveLayout();
   renderGrid();
   showToast(`Column${c2 > c1 ? 's' : ''} ${COL_HEADERS[c1]}${c2 > c1 ? '-' + COL_HEADERS[c2] : ''} deleted`);
 }
@@ -4197,7 +4216,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.71';
+const APP_BUILD = '2026-09-05.72';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
