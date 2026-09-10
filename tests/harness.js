@@ -279,6 +279,17 @@ function check(name, cond, detail) {
     JSON.stringify(g("cellData['8C']")) + '|' + JSON.stringify(g("cellStyles['8C']")));
   g("undo();");
 
+  // 5x1d0. real Sheets range copy (inline bg+border on td)
+  window.setSelection(8, 2, false);
+  const evSR = new window.Event('paste', { bubbles: true, cancelable: true });
+  const srHtml = "<meta charset='utf-8'><google-sheets-html-origin><style type=\"text/css\"><!--td {border: 1px solid #cccccc;}br {mso-data-placement:same-cell;}--></style><table xmlns=\"http://www.w3.org/1999/xhtml\" cellspacing=\"0\" cellpadding=\"0\" dir=\"ltr\" border=\"1\" style=\"table-layout:fixed;font-size:10pt;font-family:Arial;width:0px;border-collapse:collapse;border:none\" data-sheets-root=\"1\" data-sheets-baot=\"1\"><colgroup><col width=\"100\"/><col width=\"100\"/></colgroup><tbody><tr style=\"height:21px;\"><td style=\"border-top:1px solid #000000;border-right:1px solid #000000;border-bottom:1px solid #000000;border-left:1px solid #000000;overflow:hidden;padding:2px 3px 2px 3px;vertical-align:bottom;background-color:#ffff00;font-family:Arial;font-size:12pt;font-weight:normal;font-style:italic;color:#ff0000;\">\ufffc123123</td><td style=\"border-top:1px solid #000000;border-right:1px solid #000000;border-bottom:1px solid #000000;border-left:1px solid #000000;overflow:hidden;padding:2px 3px 2px 3px;vertical-align:bottom;\"></td></tr><tr style=\"height:21px;\"><td style=\"border-right:1px solid #000000;border-bottom:1px solid #000000;border-left:1px solid #000000;overflow:hidden;padding:2px 3px 2px 3px;vertical-align:bottom;background-color:#00ff00;\">asdfasdfasdf</td><td style=\"border-right:1px solid #000000;border-bottom:1px solid #000000;border-left:1px solid #000000;overflow:hidden;padding:2px 3px 2px 3px;vertical-align:bottom;\"></td></tr></tbody></table>";
+  Object.defineProperty(evSR, 'clipboardData', { value: { getData: t => t === 'text/html' ? srHtml : '123123\t\nasdfasdfasdf\t' } });
+  document.activeElement && document.activeElement.blur();
+  document.dispatchEvent(evSR);
+  check('Sheets 범위: 배경+테두리+서식', g("cellData['8C']") === '123123' && g("cellStyles['8C'].fill") === '#ffff00' && g("cellStyles['8C'].italic") === true && g("cellStyles['8C'].color") === '#ff0000' && JSON.stringify(g("cellStyles['8C'].bd")) === JSON.stringify({t:1,r:1,b:1,l:1}) && g("cellStyles['9C'].fill") === '#00ff00',
+    JSON.stringify(g("cellStyles['8C']")) + '|' + JSON.stringify(g("cellStyles['9C']")));
+  g("undo();");
+
   // 5x1d. modern Google Sheets: span[data-sheets-root], no table
   window.setSelection(8, 2, false);
   const evD = new window.Event('paste', { bubbles: true, cancelable: true });
