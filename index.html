@@ -389,6 +389,18 @@ body {
   padding: 0 8px;
 }
 
+@media (max-width: 768px) {
+  input, select, textarea { font-size: 16px !important; }
+  .cell-name { width: 56px; }
+  .formula-bar { padding: 0 6px; }
+  .spreadsheet-container, .toolbar { -webkit-overflow-scrolling: touch; }
+  .bottom-bar { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .ac-panel { width: min(340px, calc(100vw - 16px)); }
+  .header-title h1 { font-size: 15px; }
+  .tb-btn { min-width: 34px; height: 32px; }
+  .menu-btn { height: 32px; }
+}
+
 /* ===== SPREADSHEET ===== */
 .spreadsheet-container {
   flex: 1;
@@ -1494,9 +1506,13 @@ function isCellInSel(r, c) {
   return selRange && r >= selRange.r1 && r <= selRange.r2 && c >= selRange.c1 && c <= selRange.c2;
 }
 
+let lastTouchAt = 0;
+document.addEventListener('touchstart', () => { lastTouchAt = Date.now(); }, { passive: true });
+
 function onCellMouseDown(e, r, c) {
   if (e.button !== 0) return;
   if (e.target.classList && e.target.classList.contains('cell-editor')) return;
+  const tapOnSelected = Date.now() - lastTouchAt < 600 && selectedCell && selectedCell.row === r && selectedCell.col === c;
   if (isCellInSel(r, c) && nearSelEdge(e.clientX, e.clientY)) {
     e.preventDefault();
     startMoveDrag(e.altKey);
@@ -1507,6 +1523,7 @@ function onCellMouseDown(e, r, c) {
   applySelectionHighlight(false);
   updateCellName(selectedCell);
   updateToolbarState();
+  if (tapOnSelected) { dragSelecting = false; startEdit(r, c); }
 }
 
 function onCellMouseOver(r, c) {
@@ -3116,7 +3133,8 @@ function attachAutocomplete(editor, cellEl, row) {
   const panel = document.getElementById('acPanel');
   const rect = cellEl.getBoundingClientRect();
   panel.style.top = (rect.bottom + 2) + 'px';
-  panel.style.left = rect.left + 'px';
+  const pw = Math.min(340, window.innerWidth - 16);
+  panel.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - pw - 8)) + 'px';
   panel.innerHTML = '';
 
   const search = document.createElement('input');
