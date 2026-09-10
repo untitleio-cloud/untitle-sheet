@@ -264,7 +264,7 @@ function check(name, cond, detail) {
   Object.defineProperty(evMac, 'clipboardData', { value: { getData: t => t === 'text/html' ? macHtml : '\uFFFC123123' } });
   document.activeElement && document.activeElement.blur();
   document.dispatchEvent(evMac);
-  check('Excel Mac 서식 복원', g("cellData['8C']").includes('123123') && g("cellStyles['8C'].fill") === 'yellow' && g("cellStyles['8C'].color") === 'red' && g("cellStyles['8C'].italic") === true,
+  check('Excel Mac 서식 복원', g("cellData['8C']") === '123123' && g("cellStyles['8C'].fill") === 'yellow' && g("cellStyles['8C'].color") === 'red' && g("cellStyles['8C'].italic") === true,
     JSON.stringify(g("cellData['8C']")) + '|' + JSON.stringify(g("cellStyles['8C']")));
   g("undo();");
 
