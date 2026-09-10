@@ -397,7 +397,7 @@ function check(name, cond, detail) {
   check('클릭 -> 메뉴 열림(open)', document.querySelector('.header-menu').classList.contains('open'), '');
   document.querySelector('.menu-item[data-menu="file"]').click();
   check('메뉴 항목 클릭 -> 드로어 닫힘', !document.querySelector('.header-menu').classList.contains('open'), '');
-  document.getElementById('fileMenu') && document.getElementById('fileMenu').classList.remove('show');
+  document.querySelector('.menu-item[data-menu="file"]').click();
 
   // 5y4f. 2-depth drawer menus
   window.matchMedia = q => ({ matches: q.includes('768'), addListener(){}, removeListener(){} });
