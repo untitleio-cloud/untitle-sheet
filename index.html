@@ -3230,7 +3230,7 @@ function attachAutocomplete(editor, cellEl, row) {
     panel.classList.add('ac-sheet');
     const bd = document.createElement('div');
     bd.className = 'ac-backdrop';
-    bd.addEventListener('mousedown', () => editor.blur());
+    bd.addEventListener('mousedown', () => { editor.blur(); hideAcPanel(); });
     document.body.appendChild(bd);
     search.focus();
   }
