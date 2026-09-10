@@ -275,7 +275,7 @@ function check(name, cond, detail) {
   Object.defineProperty(evMac2, 'clipboardData', { value: { getData: t => t === 'text/html' ? macHtml2 : '123123' } });
   document.activeElement && document.activeElement.blur();
   document.dispatchEvent(evMac2);
-  check('실물 Excel Mac 붙여넣기', g("cellData['8C']") === '123123' && g("cellStyles['8C'].fill") === 'yellow' && g("cellStyles['8C'].color") === 'red' && g("cellStyles['8C'].italic") === true,
+  check('실물 Excel Mac 붙여넣기', g("cellData['8C']") === '123123' && g("cellStyles['8C'].fill") === 'yellow' && g("cellStyles['8C'].color") === 'red' && g("cellStyles['8C'].italic") === true && JSON.stringify(g("cellStyles['8C'].bd")) === JSON.stringify({t:1,r:1,b:1,l:1}),
     JSON.stringify(g("cellData['8C']")) + '|' + JSON.stringify(g("cellStyles['8C']")));
   g("undo();");
 
