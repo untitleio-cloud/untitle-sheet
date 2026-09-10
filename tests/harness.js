@@ -257,6 +257,60 @@ function check(name, cond, detail) {
   check('선택 없이 붙여넣기 → 첫 데이터 셀', g("cellData['1A']") === 'TOP' && g("cellStyles['1A'].bold") === true, g("cellData['1A']") + '|' + JSON.stringify(g("cellStyles['1A']")));
   g("undo();");
 
+  // 5x1f. shift-click multi delete + merge toolbar button
+  {
+    g("selectCell(1, 1);");
+    const rh1 = document.querySelector('.grid-row-header[data-row="1"]');
+    const rh2 = document.querySelector('.grid-row-header[data-row="2"]');
+    rh1.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    rh2.dispatchEvent(new window.MouseEvent('click', { bubbles: true, shiftKey: true }));
+    check('shift 행 헤더: 범위 확장', g("headerSel") === 'row' && g("selRange.r1") === 1 && g("selRange.r2") === 2, JSON.stringify(g("selRange")));
+    rh2.dispatchEvent(new window.MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+    check('우클릭 후에도 범위 유지', g("headerSel") === 'row' && g("selRange.r1") === 1 && g("selRange.r2") === 2, JSON.stringify(g("selRange")));
+    g("hideCtx();");
+    const beforeB4 = g("cellData['4B']");
+    g("deleteRows(selRange.r1, selRange.r2);");
+    check('shift 행 헤더: 일괄 삭제', g("cellData['1B']") === g("cellData['1B']") && g("cellData['2B']") === beforeB4 && beforeB4 !== undefined, String(g("cellData['2B']")));
+    g("undo();");
+    const ch1 = document.querySelector('.grid-col-header[data-col="7"]');
+    const ch2 = document.querySelector('.grid-col-header[data-col="8"]');
+    ch1.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    ch2.dispatchEvent(new window.MouseEvent('click', { bubbles: true, shiftKey: true }));
+    check('shift 열 헤더: 범위 확장', g("headerSel") === 'col' && g("selRange.c1") === 7 && g("selRange.c2") === 8, JSON.stringify(g("selRange")));
+    g("deleteCols(7, 8);");
+    check('shift 열 헤더: 일괄 삭제', g("cellData['1H']") === undefined && g("cellData['1I']") === undefined, '');
+    g("undo(); undo();");
+    g("cellData['3C'] = 'M'; selectCell(3, 2); selectCell(3, 3, true);");
+    document.getElementById('btnMerge').click();
+    check('툴바 병합 버튼', g("merges['3:2']") && g("merges['3:2'].cs") === 2, JSON.stringify(g("merges")));
+    document.getElementById('btnMerge').click();
+    check('툴바 병합 버튼 재클릭 = unmerge', Object.keys(g("merges")).length === 0, JSON.stringify(g("merges")));
+    g("undo(); undo();");
+  }
+
+  // 5x1e. merge cells
+  {
+    g("cellData['3C'] = 'A'; cellData['3D'] = 'B'; cellData['4C'] = 'C'; cellData['4D'] = 'D';");
+    g("selectCell(3, 2); selectCell(4, 3, true); mergeCells();");
+    const anc = document.querySelector('[data-row="3"][data-col="2"]');
+    check('merge: 앵커 span', anc.style.gridColumn === 'span 2' && anc.style.gridRow === 'span 2', anc.style.gridColumn + '|' + anc.style.gridRow);
+    const cov = document.querySelector('[data-row="4"][data-col="3"]');
+    check('merge: 커버 셀 숨김', cov.style.display === 'none', cov.style.display);
+    check('merge: 값은 좌상단 유지', g("cellData['3C']") === 'A' && g("cellData['4D']") === undefined, String(g("cellData['4D']")));
+    g("selectCell(4, 3);");
+    check('merge: 커버 클릭 -> 앵커 선택', g("selectedCell.row") === 3 && g("selectedCell.col") === 2, JSON.stringify(g("selectedCell")));
+    check('merge: 레이아웃 영속화', JSON.parse(window.localStorage.getItem('sheetLayout')).merges['3:2'].cs === 2, '');
+    g("undo();");
+    check('merge: undo -> 셀 복구', g("cellData['4D']") === 'D' && Object.keys(g("merges")).length === 0, String(g("cellData['4D']")));
+    g("selectCell(3, 2); selectCell(4, 3, true); mergeCells();");
+    g("deleteCols(3, 3);");
+    check('merge: 열 삭제 후 span 축소', g("merges['3:2']") === undefined || g("merges['3:2'].cs") === 1, JSON.stringify(g("merges")));
+    g("undo();");
+    g("selectCell(3, 2); mergeCells();");
+    check('merge: 재실행 = unmerge', Object.keys(g("merges")).length === 0, JSON.stringify(g("merges")));
+    g("undo(); undo();");
+  }
+
   // 5x1d. column insert/delete remaps colMap + formula refs
   {
     g("cellData['8H'] = '=C2*D2';");

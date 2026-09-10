@@ -351,6 +351,7 @@ body {
 .tb-btn.active { background: var(--bg-selected); color: var(--accent-blue); }
 .tb-btn.disabled { opacity: 0.35; pointer-events: none; }
 .tb-btn svg { width: 18px; height: 18px; }
+#btnMerge svg { width: 20px; height: 20px; }
 .tb-sep {
   width: 1px;
   height: 20px;
@@ -986,6 +987,9 @@ body {
   <button class="tb-btn" id="btnBorder" title="Borders">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
   </button>
+  <button class="tb-btn" id="btnMerge" title="Merge cells">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 4H4v16h4"/><path d="M16 4h4v16h-4"/><path fill="currentColor" stroke="none" d="M4 10h3V6l3 6-3 6v-4H4z"/><path fill="currentColor" stroke="none" d="M20 10h-3V6l-3 6 3 6v-4h3z"/></svg>
+  </button>
   <div class="tb-sep"></div>
   <button class="tb-btn" id="btnAlignLeft" title="Align left">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
@@ -1170,20 +1174,21 @@ let clipboard = null;
 
 // ===== HISTORY (UNDO/REDO) =====
 function pushHistory() {
-  undoStack.push(JSON.stringify({ data: cellData, styles: cellStyles, assets: rowAssets, heights: rowHeights, cols: colMap }));
+  undoStack.push(JSON.stringify({ data: cellData, styles: cellStyles, assets: rowAssets, heights: rowHeights, cols: colMap, merges }));
   if (undoStack.length > 100) undoStack.shift();
   redoStack = [];
   updateHistoryButtons();
 }
 function undo() {
   if (!undoStack.length) return;
-  redoStack.push(JSON.stringify({ data: cellData, styles: cellStyles, assets: rowAssets, heights: rowHeights, cols: colMap }));
+  redoStack.push(JSON.stringify({ data: cellData, styles: cellStyles, assets: rowAssets, heights: rowHeights, cols: colMap, merges }));
   const snap = JSON.parse(undoStack.pop());
   cellData = snap.data;
   cellStyles = snap.styles;
   rowAssets = snap.assets || {};
   rowHeights = snap.heights || {};
   if (snap.cols) colMap = snap.cols;
+  merges = snap.merges || {};
   saveData();
   saveRowAssets();
   saveLayout();
@@ -1192,13 +1197,14 @@ function undo() {
 }
 function redo() {
   if (!redoStack.length) return;
-  undoStack.push(JSON.stringify({ data: cellData, styles: cellStyles, assets: rowAssets, heights: rowHeights }));
+  undoStack.push(JSON.stringify({ data: cellData, styles: cellStyles, assets: rowAssets, heights: rowHeights, cols: colMap, merges }));
   const snap = JSON.parse(redoStack.pop());
   cellData = snap.data;
   cellStyles = snap.styles;
   rowAssets = snap.assets || {};
   rowHeights = snap.heights || {};
   if (snap.cols) colMap = snap.cols;
+  merges = snap.merges || {};
   saveData();
   saveRowAssets();
   saveLayout();
@@ -1315,6 +1321,89 @@ function saveData() {
   localStorage.setItem('sheetData', JSON.stringify({ data: cellData, styles: cellStyles }));
 }
 
+// ===== MERGED CELLS =====
+let merges = {};
+
+function mergeCovered() {
+  const set = {};
+  Object.keys(merges).forEach(k => {
+    const m = merges[k], p = k.split(':');
+    const ar = +p[0], ac = +p[1];
+    for (let r = ar; r < ar + m.rs; r++) {
+      for (let c = ac; c < ac + m.cs; c++) {
+        if (r !== ar || c !== ac) set[r + ':' + c] = true;
+      }
+    }
+  });
+  return set;
+}
+
+function mergeAnchorAt(r, c) {
+  const a = r + ':' + c;
+  if (merges[a]) return { r, c };
+  for (const k of Object.keys(merges)) {
+    const m = merges[k], p = k.split(':');
+    const ar = +p[0], ac = +p[1];
+    if (r >= ar && r < ar + m.rs && c >= ac && c < ac + m.cs) return { r: ar, c: ac };
+  }
+  return null;
+}
+
+function mergeCells() {
+  if (!selRange) return;
+  const { r1, c1, r2, c2 } = selRange;
+  if (r1 === r2 && c1 === c2) {
+    const a = r1 + ':' + c1;
+    if (!merges[a]) { showToast('Select a range to merge'); return; }
+    pushHistory();
+    delete merges[a];
+    saveLayout();
+    renderGrid();
+    showToast('Unmerged');
+    return;
+  }
+  pushHistory();
+  Object.keys(merges).forEach(k => {
+    const m = merges[k], p = k.split(':');
+    if (+p[0] >= r1 && +p[0] <= r2 && +p[1] >= c1 && +p[1] <= c2) delete merges[k];
+  });
+  const keepRef = r1 + COL_HEADERS[c1];
+  for (let r = r1; r <= r2; r++) {
+    for (let c = c1; c <= c2; c++) {
+      if (r === r1 && c === c1) continue;
+      delete cellData[r + COL_HEADERS[c]];
+      delete cellStyles[r + COL_HEADERS[c]];
+    }
+  }
+  merges[r1 + ':' + c1] = { rs: r2 - r1 + 1, cs: c2 - c1 + 1 };
+  saveData();
+  saveLayout();
+  renderGrid();
+  selectCell(r1, c1);
+  showToast('Merged');
+}
+
+function remapMerges(mapper, axis) {
+  const out = {};
+  Object.keys(merges).forEach(k => {
+    const m = merges[k], p = k.split(':');
+    let r = +p[0], c = +p[1];
+    const R = axis === 'row' ? mapper(r) : r;
+    const C = axis === 'col' ? mapper(c) : c;
+    if (R === null || C === null) return;
+    let rs = m.rs, cs = m.cs;
+    if (axis === 'row') {
+      const R2 = mapper(r + rs - 1);
+      rs = R2 === null ? 1 : R2 - R + 1;
+    } else {
+      const C2 = mapper(c + cs - 1);
+      cs = C2 === null ? 1 : C2 - C + 1;
+    }
+    if (rs > 1 || cs > 1) out[R + ':' + C] = { rs, cs };
+  });
+  merges = out;
+}
+
 // ===== GRID RENDERING =====
 function renderGrid() {
   const grid = document.getElementById('grid');
@@ -1354,6 +1443,7 @@ function renderGrid() {
   // Rows
   for (let r = 0; r < ROWS; r++) {
     // Row header
+    const coveredSet = mergeCovered();
     const rh = document.createElement('div');
     rh.className = 'grid-header-cell grid-row-header';
     rh.textContent = r + 1;
@@ -1376,6 +1466,11 @@ function renderGrid() {
       cell.dataset.row = r;
       cell.dataset.col = c;
       const ref = r + COL_HEADERS[c];
+      if (coveredSet[r + ':' + c]) cell.style.display = 'none';
+      else if (merges[r + ':' + c]) {
+        cell.style.gridColumn = 'span ' + merges[r + ':' + c].cs;
+        cell.style.gridRow = 'span ' + merges[r + ':' + c].rs;
+      }
 
       const content = document.createElement('span');
       content.className = 'cell-content';
@@ -1475,7 +1570,7 @@ function startRowResize(e, row) {
 }
 
 function saveLayout() {
-  localStorage.setItem('sheetLayout', JSON.stringify({ colWidths, rowHeights, colMap }));
+  localStorage.setItem('sheetLayout', JSON.stringify({ colWidths, rowHeights, colMap, merges }));
 }
 
 function loadLayout() {
@@ -1484,6 +1579,7 @@ function loadLayout() {
     try {
       const d = JSON.parse(saved);
       Object.assign(colWidths, d.colWidths || {});
+      merges = d.merges && typeof d.merges === 'object' ? d.merges : {};
       Object.assign(rowHeights, d.rowHeights || {});
       if (d.colMap && typeof d.colMap === 'object') {
         const m = {};
@@ -1562,6 +1658,10 @@ function applySelectionHighlight(scroll) {
 function setSelection(row, col, extend) {
   if (editingCell) commitEdit();
   headerSel = null;
+  if (!extend) {
+    const anc = mergeAnchorAt(row, col);
+    if (anc) { row = anc.r; col = anc.c; }
+  }
   selectedCell = { row, col };
   if (extend && selAnchor) {
     selRange = normRange(selAnchor.row, selAnchor.col, row, col);
@@ -2090,6 +2190,7 @@ function deleteRows(r1, r2) {
   if (r2 < r1) return;
   pushHistory();
   const w = r2 - r1 + 1;
+  remapMerges(r => (r >= r1 && r <= r2) ? null : (r > r2 ? r - w : r), 'row');
   for (let c = 0; c < COLS; c++) {
     const L = COL_HEADERS[c];
     for (let r = r1; r < ROWS; r++) {
@@ -2138,6 +2239,7 @@ function insertCol(at) {
   pushHistory();
   Object.keys(colMap).forEach(k => { if (colMap[k] >= at) colMap[k]++; });
   remapFormulaRefs(c => (c >= at ? c + 1 : c));
+  remapMerges(c => (c >= at ? c + 1 : c), 'col');
   for (let c = COLS - 1; c > at; c--) {
     const L = COL_HEADERS[c], P = COL_HEADERS[c - 1];
     for (let r = 0; r < ROWS; r++) {
@@ -2171,6 +2273,7 @@ function deleteCols(c1, c2) {
     }
   }
   remapFormulaRefs(c => (c >= c1 && c <= c2) ? null : (c > c2 ? c - w : c));
+  remapMerges(c => (c >= c1 && c <= c2) ? null : (c > c2 ? c - w : c), 'col');
   Object.keys(colMap).forEach(k => {
     if (colMap[k] >= c1 && colMap[k] <= c2) delete colMap[k];
     else if (colMap[k] > c2) colMap[k] -= w;
@@ -2185,6 +2288,7 @@ function deleteCols(c1, c2) {
 function insertRow(at) {
   if (at < 1 || at > ROWS - 1) return;
   pushHistory();
+  remapMerges(r => (r >= at ? r + 1 : r), 'row');
   for (let r = ROWS - 2; r >= at; r--) {
     COL_HEADERS.forEach(L => {
       const from = r + L, to = (r + 1) + L;
@@ -2241,8 +2345,13 @@ document.addEventListener('contextmenu', (e) => {
   const rowH = e.target.closest('.grid-row-header');
   if (!cell && !colH && !rowH) { hideCtx(); return; }
   e.preventDefault();
-  if (colH) selectColumn(+colH.dataset.col, false);
-  else if (rowH) selectRow(+rowH.dataset.row, false);
+  if (colH) {
+    const cc = +colH.dataset.col;
+    if (!(headerSel === 'col' && selRange && cc >= selRange.c1 && cc <= selRange.c2)) selectColumn(cc, false);
+  } else if (rowH) {
+    const rr = +rowH.dataset.row;
+    if (!(headerSel === 'row' && selRange && rr >= selRange.r1 && rr <= selRange.r2)) selectRow(rr, false);
+  }
   else if (!isCellInSel(+cell.dataset.row, +cell.dataset.col) || headerSel) {
     setSelection(+cell.dataset.row, +cell.dataset.col, false);
     applySelectionHighlight(false);
@@ -2260,6 +2369,8 @@ document.addEventListener('contextmenu', (e) => {
     { label: 'Insert column left', fn: () => insertCol(selRange.c1), disabled: headerSel !== 'col' || selRange.c1 < 0 },
     { label: 'Insert column right', fn: () => insertCol(selRange.c2 + 1), disabled: headerSel !== 'col' || selRange.c2 + 1 > COLS - 1 },
     { label: 'Delete column', fn: () => deleteCols(selRange.c1, selRange.c2), disabled: headerSel !== 'col' },
+    { sep: true },
+    { label: selRange && merges[selRange.r1 + ':' + selRange.c1] ? 'Unmerge cells' : 'Merge cells', fn: mergeCells, disabled: headerSel === 'all' || (selRange.r1 === selRange.r2 && selRange.c1 === selRange.c2 && !merges[selRange.r1 + ':' + selRange.c1]) },
     { sep: true },
     { label: 'Delete', key: 'Del', fn: clearContents },
     { label: 'Clear formatting', fn: clearFormatting },
@@ -3234,6 +3345,7 @@ document.getElementById('btnCopy').addEventListener('click', () => copySelection
 document.getElementById('btnPaste').addEventListener('click', pasteClipboard);
 document.getElementById('btnPrint').addEventListener('click', () => window.print());
 document.getElementById('btnBorder').addEventListener('click', (e) => { e.stopPropagation(); toggleBorderMenu(); });
+document.getElementById('btnMerge').addEventListener('click', () => mergeCells());
 document.getElementById('avatarBtn').addEventListener('click', showSupportModal);
 document.getElementById('btnFmtCurrency').addEventListener('click', () =>
   formatSelectedCell(v => '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })));
@@ -4219,7 +4331,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.73';
+const APP_BUILD = '2026-09-05.74';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
