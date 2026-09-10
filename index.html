@@ -413,6 +413,9 @@ body {
   .tb-btn { min-width: 34px; height: 32px; }
   .menu-btn { height: 32px; }
   .header-logo .logo-mark { display: none; }
+  .header { padding: 4px 10px 4px 4px; }
+  .header-logo { margin-right: 6px; }
+  .header-title h1 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #avatarBtn { display: none; }
   .menu-toggle { display: flex; }
   .header-menu { display: none; }
@@ -757,8 +760,8 @@ body {
 .ac-panel.ac-sheet {
   left: 8px !important;
   right: 8px !important;
-  bottom: 8px;
-  top: auto !important;
+  top: 8px;
+  bottom: auto !important;
   width: auto;
   max-height: 68vh;
   border-radius: 12px;
@@ -4012,7 +4015,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.54';
+const APP_BUILD = '2026-09-05.55';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
