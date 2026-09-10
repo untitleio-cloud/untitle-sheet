@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Untitled Spreadsheet</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='3' fill='%230f9d58'/%3E%3Cpath fill='%23fff' d='M5 4.5h6.2v6H5zM12.8 4.5H19v6h-6.2zM5 12.5h6.2v7H5zM12.8 12.5H19v7h-6.2z'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='3' fill='%230f9d58'/%3E%3Cpath fill='%23fff' d='M5 4.5h6.2v6H5zM12.8 4.5H19v6h-6.2zM5 12.5h6.2v7H5zM12.8 12.5H19v7h-6.2z'/%3E%3C/svg%3E">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='4' y='2' width='24' height='28' rx='2' fill='%230F9D58'/><rect x='8' y='8' width='16' height='2' fill='white'/><rect x='8' y='13' width='16' height='2' fill='white'/><rect x='8' y='18' width='16' height='2' fill='white'/><rect x='12' y='6' width='2' height='16' fill='white'/></svg>">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -4191,6 +4193,7 @@ document.querySelector('[data-menu="file"]').addEventListener('click', (e) => {
 function applyDataSource(k) {
   dataSource = k;
   localStorage.setItem('dataSource', k);
+  if (k === 'selfhost') localStorage.setItem('selfhostEnabled', '1');
   Object.keys(prices).forEach(t => { if (prices[t].src !== k) delete prices[t]; });
   binanceBlocked = false;
   rateLimitedUntil = 0;
@@ -4216,7 +4219,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.72';
+const APP_BUILD = '2026-09-05.73';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
@@ -4256,8 +4259,12 @@ function probeSource(kind) {
   if (kind === 'selfhost') {
     return fetch('/api/quote?probe=1')
       .then(res => (res.ok ? res.json() : Promise.reject()))
-      .then(d => (d && d.ok ? 'ok' : 'blocked'))
-      .catch(() => 'blocked');
+      .then(d => {
+        if (d && d.ok) localStorage.setItem('selfhostEnabled', '1');
+        else localStorage.removeItem('selfhostEnabled');
+        return d && d.ok ? 'ok' : 'blocked';
+      })
+      .catch(() => { localStorage.removeItem('selfhostEnabled'); return 'blocked'; });
   }
   if (kind === 'bybit') return probeUrl('https://api.bybit.com/v5/market/tickers?category=spot&symbol=BTCUSDT');
   if (kind === 'okx') return probeUrl('https://www.okx.com/api/v5/market/ticker?instId=BTC-USDT');
@@ -5105,7 +5112,8 @@ loadLayout();
 initCellData();
 renderGrid();
 updateHistoryButtons();
-probeSelfhost().then(autoPickSource).then(() => {
+(dataSource === 'selfhost' || localStorage.getItem('selfhostEnabled') === '1'
+  ? probeSelfhost() : Promise.resolve(false)).then(autoPickSource).then(() => {
   startFeed();
   fetchPrices().then(ok => {
     lastFetchAt = Date.now();
