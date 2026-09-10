@@ -399,6 +399,15 @@ function check(name, cond, detail) {
   check('메뉴 항목 클릭 -> 드로어 닫힘', !document.querySelector('.header-menu').classList.contains('open'), '');
   document.getElementById('fileMenu') && document.getElementById('fileMenu').classList.remove('show');
 
+  // 5y4d. Mobile ac bottom sheet
+  window.matchMedia = q => ({ matches: q.includes('768'), addListener(){}, removeListener(){} });
+  g("selectCell(6, colMap.code); startEdit(6, colMap.code);");
+  check('모바일: 드롭다운이 바텀시트로', document.getElementById('acPanel').classList.contains('ac-sheet') && !!document.querySelector('.ac-backdrop'), '');
+  document.querySelector('.ac-backdrop').dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+  check('배경 탭 -> 시트 닫힘', !document.getElementById('acPanel').classList.contains('show') && !document.querySelector('.ac-backdrop'), '');
+  g("if (editingCell) cancelEdit();");
+  window.matchMedia = undefined;
+
   // 5y6a. CoinGecko tokenized stocks
   g("localStorage.removeItem('cgStockIds'); applyDataSource('coingecko');");
   await g("refreshMarket(true)");

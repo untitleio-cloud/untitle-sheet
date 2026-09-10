@@ -754,6 +754,17 @@ body {
   padding: 0 0 4px;
 }
 .ac-panel.show { display: block; }
+.ac-panel.ac-sheet {
+  left: 8px !important;
+  right: 8px !important;
+  bottom: 8px;
+  top: auto !important;
+  width: auto;
+  max-height: 68vh;
+  border-radius: 12px;
+}
+.ac-panel.ac-sheet .ac-results { max-height: 46vh; }
+.ac-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.35); z-index: 9999; }
 .ac-search {
   width: calc(100% - 16px);
   margin: 8px;
@@ -3085,7 +3096,9 @@ let catalog = null;
 let catalogPromise = null;
 
 function hideAcPanel() {
-  document.getElementById('acPanel').classList.remove('show');
+  document.getElementById('acPanel').classList.remove('show', 'ac-sheet');
+  const bd = document.querySelector('.ac-backdrop');
+  if (bd) bd.remove();
 }
 
 // ===== CATALOG (Binance futures: crypto + TradFi perpetuals, cached 7 days) =====
@@ -3212,6 +3225,15 @@ function attachAutocomplete(editor, cellEl, row) {
   panel.appendChild(foot);
 
   panel.classList.add('show');
+
+  if (window.matchMedia && window.matchMedia('(max-width: 768px)').matches) {
+    panel.classList.add('ac-sheet');
+    const bd = document.createElement('div');
+    bd.className = 'ac-backdrop';
+    bd.addEventListener('mousedown', () => editor.blur());
+    document.body.appendChild(bd);
+    search.focus();
+  }
 
   function renderList() {
     list.innerHTML = '';
@@ -3990,7 +4012,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.53';
+const APP_BUILD = '2026-09-05.54';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
