@@ -257,6 +257,17 @@ function check(name, cond, detail) {
   check('선택 없이 붙여넣기 → 첫 데이터 셀', g("cellData['1A']") === 'TOP' && g("cellStyles['1A'].bold") === true, g("cellData['1A']") + '|' + JSON.stringify(g("cellStyles['1A']")));
   g("undo();");
 
+  // 5x1d. modern Google Sheets: span[data-sheets-root], no table
+  window.setSelection(8, 2, false);
+  const evD = new window.Event('paste', { bubbles: true, cancelable: true });
+  const dHtml = "<meta charset='utf-8'><style type=\"text/css\"><!--td {border: 1px solid #cccccc;}br {mso-data-placement:same-cell;}--></style><span style=\"font-size:10pt;font-family:Arial;font-weight:bold;font-style:italic;color:#ff9900;text-align:right;\" data-sheets-root=\"1\">123123</span>";
+  Object.defineProperty(evD, 'clipboardData', { value: { getData: t => t === 'text/html' ? dHtml : '123123' } });
+  document.activeElement && document.activeElement.blur();
+  document.dispatchEvent(evD);
+  check('Sheets span-root 서식 복원', g("cellData['8C']") === '123123' && g("cellStyles['8C'].bold") === true && g("cellStyles['8C'].italic") === true && g("cellStyles['8C'].color") === '#ff9900' && g("cellStyles['8C'].align") === 'right',
+    JSON.stringify(g("cellStyles['8C']")));
+  g("undo();");
+
   // 5x1e. legacy HTML tags: bgcolor attr, <font color>, <b>, <i>, <u>
   window.setSelection(8, 2, false);
   const evL = new window.Event('paste', { bubbles: true, cancelable: true });
