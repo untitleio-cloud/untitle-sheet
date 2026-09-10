@@ -2501,7 +2501,7 @@ function pasteExternalText(text, html) {
     const tr = start.row + dr, tc = start.col + dc;
     if (tr >= ROWS || tc >= COLS) return;
     const ref = getCellRef(tr, tc);
-    if (val === '') { delete cellData[ref]; delete cellStyles[ref]; }
+    if (val === '') { delete cellData[ref]; if (cell.style) cellStyles[ref] = Object.assign({}, cellStyles[ref], cell.style); else delete cellStyles[ref]; }
     else {
       cellData[ref] = val;
       if (cell.style) cellStyles[ref] = Object.assign({}, cellStyles[ref], cell.style);
@@ -4197,7 +4197,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.69';
+const APP_BUILD = '2026-09-05.70';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
