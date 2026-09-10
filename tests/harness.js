@@ -288,6 +288,7 @@ function check(name, cond, detail) {
   document.dispatchEvent(evSR);
   check('Sheets 범위: 배경+테두리+서식', g("cellData['8C']") === '123123' && g("cellStyles['8C'].fill") === '#ffff00' && g("cellStyles['8C'].italic") === true && g("cellStyles['8C'].color") === '#ff0000' && JSON.stringify(g("cellStyles['8C'].bd")) === JSON.stringify({t:1,r:1,b:1,l:1}) && g("cellStyles['9C'].fill") === '#00ff00',
     JSON.stringify(g("cellStyles['8C']")) + '|' + JSON.stringify(g("cellStyles['9C']")));
+  check('Sheets 범위: 빈 셀의 외곽 테두리 유지', g("cellData['8D'] === undefined") === true && JSON.stringify(g("cellStyles['8D'].bd")) === JSON.stringify({t:1,r:1,b:1,l:1}), JSON.stringify(g("cellStyles['8D']")));
   g("undo();");
 
   // 5x1d. modern Google Sheets: span[data-sheets-root], no table
