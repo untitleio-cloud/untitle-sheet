@@ -257,6 +257,17 @@ function check(name, cond, detail) {
   check('선택 없이 붙여넣기 → 첫 데이터 셀', g("cellData['1A']") === 'TOP' && g("cellStyles['1A'].bold") === true, g("cellData['1A']") + '|' + JSON.stringify(g("cellStyles['1A']")));
   g("undo();");
 
+  // 5x1c. Excel Mac Office-HTML (style block inside HTML comment, class rules)
+  window.setSelection(8, 2, false);
+  const evMac = new window.Event('paste', { bubbles: true, cancelable: true });
+  const macHtml = '<html xmlns:v="urn:schemas-microsoft-com:vml"><head><style>\n<!--table {mso-displayed-decimal-separator:"x";}\n.font5 {color:windowtext; font-size:8.0pt; font-weight:400;}\n.xl65 {color:red; font-style:italic; border:.5pt solid windowtext; background:yellow; mso-pattern:black none;}\n-->\n</style></head><body><table border=0 cellpadding=0><tr style=height:16.5pt><td height="24" class=xl65 width=100 style="height:18.0pt;width:75pt">\uFFFC123123</td></tr></table></body></html>';
+  Object.defineProperty(evMac, 'clipboardData', { value: { getData: t => t === 'text/html' ? macHtml : '\uFFFC123123' } });
+  document.activeElement && document.activeElement.blur();
+  document.dispatchEvent(evMac);
+  check('Excel Mac 서식 복원', g("cellData['8C']").includes('123123') && g("cellStyles['8C'].fill") === 'yellow' && g("cellStyles['8C'].color") === 'red' && g("cellStyles['8C'].italic") === true,
+    JSON.stringify(g("cellData['8C']")) + '|' + JSON.stringify(g("cellStyles['8C']")));
+  g("undo();");
+
   // 5x1d. modern Google Sheets: span[data-sheets-root], no table
   window.setSelection(8, 2, false);
   const evD = new window.Event('paste', { bubbles: true, cancelable: true });

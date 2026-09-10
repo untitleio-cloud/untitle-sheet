@@ -2463,9 +2463,10 @@ function pasteExternalText(text, html) {
       row[c] || { val: '', style: null }
     ));
   } else {
-    rows = text.replace(/\r\n/g, '\n').replace(/\n+$/, '').split('\n')
+    rows = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\n+$/, '').split('\n')
       .map(row => row.split('\t').map(v => ({ val: v, style: null })));
   }
+  rows = rows.map(row => row.map(cell => ({ val: (cell.val || '').replace(/\uFFFC/g, ''), style: cell.style })));
   pushHistory();
   const start = { row: selectedCell.row, col: selectedCell.col };
   let maxR = start.row, maxC = start.col;
@@ -4170,7 +4171,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.66';
+const APP_BUILD = '2026-09-05.67';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
