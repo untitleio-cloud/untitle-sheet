@@ -399,6 +399,16 @@ function check(name, cond, detail) {
   check('메뉴 항목 클릭 -> 드로어 닫힘', !document.querySelector('.header-menu').classList.contains('open'), '');
   document.querySelector('.menu-item[data-menu="file"]').click();
 
+  // 5y4g. Mobile notice popup
+  window.matchMedia = q => ({ matches: q.includes('768'), addListener(){}, removeListener(){} });
+  g("localStorage.removeItem('mobileNoticeSeen'); maybeShowMobileNotice();");
+  check('모바일 알림 팝업 표시', !!document.querySelector('.mn-card'), '');
+  document.querySelector('.mn-card button').click();
+  check('Got it -> 깃발 & 닫힘', g("localStorage.getItem('mobileNoticeSeen')") === '1' && !document.querySelector('.mn-card'), '');
+  g("maybeShowMobileNotice();");
+  check('재표시 안 함', !document.querySelector('.mn-card'), '');
+  window.matchMedia = undefined;
+
   // 5y4f. 2-depth drawer menus
   window.matchMedia = q => ({ matches: q.includes('768'), addListener(){}, removeListener(){} });
   document.getElementById('menuToggle').click();
