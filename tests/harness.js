@@ -391,6 +391,14 @@ function check(name, cond, detail) {
   g("cancelEdit(); nearSelEdge = () => true;");
   window.eval('nearSelEdge = _neeOrig;');
 
+  // 5y4c. Mobile menu toggle
+  check('menu toggle 버튼 존재', !!document.getElementById('menuToggle'), '');
+  document.getElementById('menuToggle').click();
+  check('클릭 -> 메뉴 열림(open)', document.querySelector('.header-menu').classList.contains('open'), '');
+  document.querySelector('.menu-item[data-menu="file"]').click();
+  check('메뉴 항목 클릭 -> 드로어 닫힘', !document.querySelector('.header-menu').classList.contains('open'), '');
+  document.getElementById('fileMenu') && document.getElementById('fileMenu').classList.remove('show');
+
   // 5y6a. CoinGecko tokenized stocks
   g("localStorage.removeItem('cgStockIds'); applyDataSource('coingecko');");
   await g("refreshMarket(true)");

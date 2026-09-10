@@ -56,6 +56,19 @@ body {
   width: 40px;
   height: 40px;
 }
+.menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.menu-toggle:hover { background: var(--bg-hover); }
 .header-title {
   display: flex;
   align-items: center;
@@ -399,6 +412,23 @@ body {
   .header-title h1 { font-size: 15px; }
   .tb-btn { min-width: 34px; height: 32px; }
   .menu-btn { height: 32px; }
+  .header-logo .logo-mark { display: none; }
+  .menu-toggle { display: flex; }
+  .header-menu { display: none; }
+  .header-menu.open {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 8px;
+    z-index: 1200;
+    min-width: 180px;
+    background: var(--bg-white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.2);
+    padding: 6px;
+  }
+  .header-menu.open .menu-item { padding: 11px 14px; border-radius: 6px; }
 }
 
 /* ===== SPREADSHEET ===== */
@@ -780,7 +810,10 @@ body {
 <!-- Header -->
 <div class="header">
   <div class="header-logo">
-    <svg width="40" height="40" viewBox="0 0 48 48"><rect x="4" y="4" width="40" height="40" rx="4" fill="#0F9D58"/><rect x="12" y="14" width="24" height="3" fill="white"/><rect x="12" y="22" width="24" height="3" fill="white"/><rect x="12" y="30" width="24" height="3" fill="white"/><rect x="18" y="10" width="3" height="26" fill="white"/></svg>
+    <svg class="logo-mark" width="40" height="40" viewBox="0 0 48 48"><rect x="4" y="4" width="40" height="40" rx="4" fill="#0F9D58"/><rect x="12" y="14" width="24" height="3" fill="white"/><rect x="12" y="22" width="24" height="3" fill="white"/><rect x="12" y="30" width="24" height="3" fill="white"/><rect x="18" y="10" width="3" height="26" fill="white"/></svg>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menu" title="Menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
   </div>
   <div class="header-center">
     <div class="header-title">
@@ -2948,6 +2981,18 @@ const docTitle = document.querySelector('.header-title h1');
   if (saved) docTitle.textContent = saved;
   document.title = docTitle.textContent;
 })();
+document.getElementById('menuToggle').addEventListener('click', (e) => {
+  e.stopPropagation();
+  const hm = document.querySelector('.header-menu');
+  const willOpen = !hm.classList.contains('open');
+  if (willOpen) hm.style.top = (document.querySelector('.header').getBoundingClientRect().bottom + 4) + 'px';
+  hm.classList.toggle('open', willOpen);
+});
+document.querySelector('.header-menu').addEventListener('click', (e) => {
+  if (e.target.closest('.menu-item')) document.querySelector('.header-menu').classList.remove('open');
+});
+document.addEventListener('click', () => document.querySelector('.header-menu').classList.remove('open'));
+
 docTitle.addEventListener('blur', () => {
   const t = docTitle.textContent.replace(/\s+/g, ' ').trim() || 'Untitled spreadsheet';
   docTitle.textContent = t;
@@ -3944,7 +3989,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.51';
+const APP_BUILD = '2026-09-05.52';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
