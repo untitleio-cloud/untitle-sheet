@@ -377,6 +377,17 @@ function check(name, cond, detail) {
   document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
   check('BMC 모달 Esc 닫힘', !document.querySelector('.modal-overlay'));
 
+  // 5y5. Mobile intro (narrow viewport)
+  window.matchMedia = q => ({ matches: q.includes('768'), addListener(){}, removeListener(){} });
+  g("localStorage.removeItem('mobileIntroSeen'); maybeShowMobileIntro();");
+  const miCard = document.querySelector('.mi-card');
+  check('모바일 인트로 표시', !!miCard && !!document.querySelector('.mi-gif'), String(!!miCard));
+  miCard.querySelector('button').click();
+  check('Got it -> 깃발 저장 & 닫힘', g("localStorage.getItem('mobileIntroSeen')") === '1' && !document.querySelector('.mi-card'), '');
+  g("maybeShowMobileIntro();");
+  check('재표시 안 함', !document.querySelector('.mi-card'), '');
+  window.matchMedia = undefined;
+
   // 5y6a. CoinGecko tokenized stocks
   g("localStorage.removeItem('cgStockIds'); applyDataSource('coingecko');");
   await g("refreshMarket(true)");

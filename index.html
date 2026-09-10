@@ -188,6 +188,15 @@ body {
 .m-status.ok { background: #e6f4ea; color: #137333; }
 .m-status.blocked { background: #fce8e6; color: #c5221f; }
 .m-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 0 18px; }
+.mi-card { width: min(430px, 92vw); padding: 22px 22px 16px; }
+.mi-card h2 { padding: 0; margin: 0 0 4px; }
+.mi-sub { color: var(--text-secondary); font-size: 12.5px; }
+.mi-gif { width: 100%; border-radius: 8px; border: 1px solid var(--border); display: block; margin: 14px 0 10px; }
+.mi-b { font-size: 12.5px; color: var(--text-secondary); margin: 5px 0; padding-left: 14px; position: relative; }
+.mi-b::before { content: '\2022'; position: absolute; left: 2px; color: var(--accent); }
+.mi-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 16px; }
+.mi-desk { font-size: 11.5px; color: var(--text-disabled); }
+.mi-desk b { color: var(--text-secondary); }
 .m-btn {
   border: 1px solid #dadce0;
   background: #fff;
@@ -3926,7 +3935,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.49';
+const APP_BUILD = '2026-09-05.50';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
@@ -4087,6 +4096,54 @@ function openApiSourcesModal() {
   });
 
   srcList().forEach(([k]) => { applyProbe(k); });
+}
+
+function maybeShowMobileIntro() {
+  const isNarrow = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+  if (!isNarrow || localStorage.getItem('mobileIntroSeen') === '1') return;
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  const card = document.createElement('div');
+  card.className = 'modal mi-card';
+  const h = document.createElement('h2');
+  h.textContent = 'Untitled Spreadsheet';
+  const sub = document.createElement('div');
+  sub.className = 'mi-sub';
+  sub.textContent = 'A portfolio tracker disguised as a spreadsheet.';
+  const gif = document.createElement('img');
+  gif.className = 'mi-gif';
+  gif.src = 'demo.gif';
+  gif.alt = 'Untitled Spreadsheet demo';
+  card.appendChild(h);
+  card.appendChild(sub);
+  card.appendChild(gif);
+  [
+    'Live crypto & US stock prices \u00B7 Binance, Bybit, OKX, CoinGecko',
+    'No account, no tracking \u00B7 your data never leaves this browser',
+    'Free, open \u00B7 one HTML file you can keep',
+  ].forEach(t => {
+    const b = document.createElement('div');
+    b.className = 'mi-b';
+    b.textContent = t;
+    card.appendChild(b);
+  });
+  const foot = document.createElement('div');
+  foot.className = 'mi-foot';
+  const desk = document.createElement('span');
+  desk.className = 'mi-desk';
+  desk.innerHTML = 'Full editing on desktop \u00B7 <b>untitle.io</b>';
+  const btn = document.createElement('button');
+  btn.className = 'btn-primary';
+  btn.textContent = 'Got it \u2014 keep browsing';
+  btn.addEventListener('click', () => {
+    localStorage.setItem('mobileIntroSeen', '1');
+    overlay.remove();
+  });
+  foot.appendChild(desk);
+  foot.appendChild(btn);
+  card.appendChild(foot);
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
 }
 
 function showSupportModal() {
@@ -4828,6 +4885,7 @@ probeSelfhost().then(autoPickSource).then(() => {
     });
   });
 });
+setTimeout(maybeShowMobileIntro, 600);
 </script>
 </body>
 </html>
