@@ -447,9 +447,9 @@ body {
     box-shadow: var(--shadow-lg);
     padding: 8px;
   }
-  .tb-more-pop.show { display: grid; grid-template-columns: repeat(4, 44px); gap: 6px; justify-items: center; align-items: center; }
+  .tb-more-pop.show { display: grid; grid-template-columns: repeat(4, 48px); gap: 6px; justify-items: center; align-items: center; }
   .tb-more-pop .tb-sep { display: none; }
-  .tb-more-pop .tb-select { width: 86px; max-width: 100%; }
+  .tb-more-pop .tb-select { width: 102px; grid-column: span 2; }
 }
 
 /* ===== SPREADSHEET ===== */
@@ -4066,7 +4066,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.58';
+const APP_BUILD = '2026-09-05.59';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
