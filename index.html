@@ -315,6 +315,7 @@ body {
   font-family: inherit;
   position: relative;
 }
+.tb-core { display: flex; gap: 2px; align-items: center; flex-shrink: 0; }
 .tb-btn:hover { background: var(--bg-hover); }
 .tb-btn.active { background: var(--bg-selected); color: var(--accent-blue); }
 .tb-btn.disabled { opacity: 0.35; pointer-events: none; }
@@ -433,6 +434,21 @@ body {
     padding: 6px;
   }
   .header-menu.open .menu-item { padding: 11px 14px; border-radius: 6px; }
+  .tb-fixed { margin-left: auto; flex-shrink: 0; }
+  .tb-more-pop {
+    display: none;
+    position: fixed;
+    right: 8px;
+    z-index: 1200;
+    background: var(--bg-white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-lg);
+    padding: 8px;
+  }
+  .tb-more-pop.show { display: grid; grid-template-columns: repeat(4, 44px); gap: 6px; justify-items: center; align-items: center; }
+  .tb-more-pop .tb-sep { display: none; }
+  .tb-more-pop .tb-select { width: 86px; max-width: 100%; }
 }
 
 /* ===== SPREADSHEET ===== */
@@ -3008,6 +3024,40 @@ document.querySelector('.header-menu').addEventListener('click', (e) => {
 });
 document.addEventListener('click', () => document.querySelector('.header-menu').classList.remove('open'));
 
+function buildMobileToolbar() {
+  if (!(window.matchMedia && window.matchMedia('(max-width: 768px)').matches)) return;
+  if (document.getElementById('tbMore')) return;
+  const tb = document.querySelector('.toolbar');
+  const coreIds = ['btnUndo', 'btnRedo', 'btnCut', 'btnCopy', 'btnPaste'];
+  const fixed = [document.getElementById('btnLive'), document.getElementById('btnRefresh')];
+  const core = document.createElement('div');
+  core.className = 'tb-core';
+  const more = document.createElement('div');
+  more.className = 'tb-more-pop';
+  coreIds.forEach(id => core.appendChild(document.getElementById(id)));
+  const sep = document.createElement('div');
+  sep.className = 'tb-sep';
+  core.appendChild(sep);
+  Array.from(tb.children).forEach(ch => { if (fixed.indexOf(ch) === -1) more.appendChild(ch); });
+  tb.appendChild(core);
+  const moreBtn = document.createElement('button');
+  moreBtn.className = 'tb-btn';
+  moreBtn.id = 'tbMore';
+  moreBtn.title = 'More tools';
+  moreBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>';
+  tb.appendChild(moreBtn);
+  fixed.forEach(el => { el.classList.add('tb-fixed'); tb.appendChild(el); });
+  document.body.appendChild(more);
+  moreBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const willOpen = !more.classList.contains('show');
+    if (willOpen) more.style.top = (tb.getBoundingClientRect().bottom + 4) + 'px';
+    more.classList.toggle('show', willOpen);
+  });
+  more.addEventListener('click', (e) => e.stopPropagation());
+  document.addEventListener('click', () => more.classList.remove('show'));
+}
+
 docTitle.addEventListener('blur', () => {
   const t = docTitle.textContent.replace(/\s+/g, ' ').trim() || 'Untitled spreadsheet';
   docTitle.textContent = t;
@@ -4015,7 +4065,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.56';
+const APP_BUILD = '2026-09-05.57';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
@@ -4917,6 +4967,7 @@ probeSelfhost().then(autoPickSource).then(() => {
     });
   });
 });
+buildMobileToolbar();
 </script>
 </body>
 </html>

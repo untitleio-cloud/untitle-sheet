@@ -399,6 +399,20 @@ function check(name, cond, detail) {
   check('메뉴 항목 클릭 -> 드로어 닫힘', !document.querySelector('.header-menu').classList.contains('open'), '');
   document.getElementById('fileMenu') && document.getElementById('fileMenu').classList.remove('show');
 
+  // 5y4e. Mobile toolbar restructure
+  window.matchMedia = q => ({ matches: q.includes('768'), addListener(){}, removeListener(){} });
+  g("buildMobileToolbar();");
+  const tbEl = document.querySelector('.toolbar');
+  check('도구모바일: More 버튼 생성', !!document.getElementById('tbMore'), '');
+  check('More 팝업에 Print/서식 이동', document.querySelector('.tb-more-pop').contains(document.getElementById('btnPrint')), '');
+  check('core에 Undo~Paste', document.querySelector('.tb-core').contains(document.getElementById('btnPaste')) && document.querySelector('.tb-core').contains(document.getElementById('btnUndo')), '');
+  check('Auto/Refresh 우측고정(tb-fixed)', document.getElementById('btnLive').classList.contains('tb-fixed') && tbEl.lastElementChild.id === 'btnRefresh', tbEl.lastElementChild.id);
+  document.getElementById('tbMore').click();
+  check('More 탭 -> 팝업 열림', document.querySelector('.tb-more-pop').classList.contains('show'), '');
+  document.body.click();
+  check('바깥 탭 -> 닫힘', !document.querySelector('.tb-more-pop').classList.contains('show'), '');
+  window.matchMedia = undefined;
+
   // 5y4d. Mobile ac bottom sheet
   window.matchMedia = q => ({ matches: q.includes('768'), addListener(){}, removeListener(){} });
   g("selectCell(6, colMap.code); startEdit(6, colMap.code);");
