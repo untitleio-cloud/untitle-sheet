@@ -434,7 +434,8 @@ body {
     padding: 6px;
   }
   .header-menu.open .menu-item { padding: 11px 14px; border-radius: 6px; }
-  .tb-fixed { margin-left: auto; flex-shrink: 0; }
+  .tb-fixed { flex-shrink: 0; }
+  #tbMore { margin-left: auto; }
   .tb-more-pop {
     display: none;
     position: fixed;
@@ -3040,13 +3041,13 @@ function buildMobileToolbar() {
   core.appendChild(sep);
   Array.from(tb.children).forEach(ch => { if (fixed.indexOf(ch) === -1) more.appendChild(ch); });
   tb.appendChild(core);
+  fixed.forEach(el => { el.classList.add('tb-fixed'); tb.appendChild(el); });
   const moreBtn = document.createElement('button');
   moreBtn.className = 'tb-btn';
   moreBtn.id = 'tbMore';
   moreBtn.title = 'More tools';
   moreBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>';
   tb.appendChild(moreBtn);
-  fixed.forEach(el => { el.classList.add('tb-fixed'); tb.appendChild(el); });
   document.body.appendChild(more);
   moreBtn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -4065,7 +4066,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.57';
+const APP_BUILD = '2026-09-05.58';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [

@@ -406,7 +406,7 @@ function check(name, cond, detail) {
   check('도구모바일: More 버튼 생성', !!document.getElementById('tbMore'), '');
   check('More 팝업에 Print/서식 이동', document.querySelector('.tb-more-pop').contains(document.getElementById('btnPrint')), '');
   check('core에 Undo~Paste', document.querySelector('.tb-core').contains(document.getElementById('btnPaste')) && document.querySelector('.tb-core').contains(document.getElementById('btnUndo')), '');
-  check('Auto/Refresh 우측고정(tb-fixed)', document.getElementById('btnLive').classList.contains('tb-fixed') && tbEl.lastElementChild.id === 'btnRefresh', tbEl.lastElementChild.id);
+  check('Auto/Refresh 좌측 배치 + More 우측 끝', document.getElementById('btnLive').classList.contains('tb-fixed') && tbEl.lastElementChild.id === 'tbMore' && tbEl.children[1].id === 'btnLive', tbEl.lastElementChild.id + '/' + tbEl.children[1].id);
   document.getElementById('tbMore').click();
   check('More 탭 -> 팝업 열림', document.querySelector('.tb-more-pop').classList.contains('show'), '');
   document.body.click();
