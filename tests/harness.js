@@ -257,6 +257,23 @@ function check(name, cond, detail) {
   check('선택 없이 붙여넣기 → 첫 데이터 셀', g("cellData['1A']") === 'TOP' && g("cellStyles['1A'].bold") === true, g("cellData['1A']") + '|' + JSON.stringify(g("cellStyles['1A']")));
   g("undo();");
 
+  // 5x1g. API sources modal: whole row selects
+  {
+    g("openApiSourcesModal();");
+    const rowsEl = Array.from(document.querySelectorAll('.m-row'));
+    const okxRow = rowsEl.find(r => r.querySelector('.m-url') && r.querySelector('.m-url').textContent.indexOf('okx') > -1);
+    check('모달: 행 렌더', !!okxRow, String(rowsEl.length));
+    okxRow.querySelector('input[type=radio]').disabled = false;
+    okxRow.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    check('모달: 행 클릭으로 라디오 선택', okxRow.querySelector('input[type=radio]').checked === true, '');
+    okxRow.querySelector('input[type=radio]').disabled = true;
+    okxRow.classList.add('disabled');
+    okxRow.querySelector('input[type=radio]').checked = false;
+    okxRow.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    check('모달: 비활성 행은 클릭 무시', okxRow.querySelector('input[type=radio]').checked === false, '');
+    document.querySelector('.modal-overlay').remove();
+  }
+
   // 5x1f. shift-click multi delete + merge toolbar button
   {
     g("selectCell(1, 1);");
