@@ -612,6 +612,10 @@ body {
 }
 .grid-cell .cell-content {
   display: block;
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 3px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -671,6 +675,32 @@ body {
 .grid-cell.cell-align-left .cell-content { text-align: left; }
 .grid-cell.cell-align-center .cell-content { text-align: center; }
 .grid-cell.cell-align-right .cell-content { text-align: right; }
+.grid-cell.cell-valign-top .cell-content { top: 3px; bottom: auto; }
+.grid-cell.cell-valign-middle .cell-content { top: 50%; bottom: auto; transform: translateY(-50%); }
+.grid-cell.cell-valign-bottom .cell-content { bottom: 3px; top: auto; }
+.tb-menu {
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  min-width: 0;
+}
+.tb-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+.tb-menu-item:hover { background: var(--bg-hover); }
+.tb-menu-item.tb-on { background: #d3e3fd; }
+.tb-menu-item svg { width: 18px; height: 18px; flex: none; }
+.fn-menu { min-width: 150px; max-height: 264px; overflow-y: auto; padding: 4px 0; }
+.fn-item { padding: 7px 16px; cursor: pointer; font-size: 13px; color: var(--text-primary); white-space: nowrap; }
+.fn-item:hover { background: var(--bg-hover); }
+#btnAlignIco svg, #btnVAlignIco svg { width: 20px; height: 20px; display: block; }
+.tb-btn svg.tb-caret { width: 10px; height: 7px; margin-left: 1px; flex: none; }
 .cell-editor { text-align: left; }
 .grid-cell.cell-border { box-shadow: inset 0 0 0 1.5px #5f6368; }
 
@@ -999,20 +1029,16 @@ body {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 4H4v16h4"/><path d="M16 4h4v16h-4"/><path fill="currentColor" stroke="none" d="M4 10h3V6l3 6-3 6v-4H4z"/><path fill="currentColor" stroke="none" d="M20 10h-3V6l-3 6 3 6v-4h3z"/></svg>
   </button>
   <div class="tb-sep"></div>
-  <button class="tb-btn" id="btnAlignLeft" title="Align left">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
-  </button>
-  <button class="tb-btn" id="btnAlignCenter" title="Align center">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="10" x2="6" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="18" y1="18" x2="6" y2="18"/></svg>
-  </button>
-  <button class="tb-btn" id="btnAlignRight" title="Align right">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="21" y1="10" x2="7" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="7" y2="18"/></svg>
-  </button>
+  <button class="tb-btn" id="btnAlign" title="Align text"><span id="btnAlignIco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg></span><svg class="tb-caret" viewBox="5.5 7.5 13 9"><path fill="currentColor" d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg></button>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" id="btnVAlign" title="Vertical align"><span id="btnVAlignIco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v10"/><path d="M8 10l4 4 4-4"/><line x1="6" y1="20" x2="18" y2="20"/></svg></span><svg class="tb-caret" viewBox="5.5 7.5 13 9"><path fill="currentColor" d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg></button>
   <div class="tb-sep"></div>
   <button class="tb-btn" id="btnFmtCurrency" title="Currency format" style="font-size:12px">$</button>
   <button class="tb-btn" id="btnFmtPercent" title="Percentage format" style="font-size:12px">%</button>
   <button class="tb-btn" id="btnFmtComma" title="Number format" style="font-size:12px">,0</button>
   <button class="tb-btn" id="btnFmtPlain" title="Plain number (reset format)" style="font-size:12px">123</button>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" id="btnFunc" title="Functions"><span style="font-weight:700;font-size:15px">&Sigma;</span><svg class="tb-caret" viewBox="5.5 7.5 13 9"><path fill="currentColor" d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg></button>
   <div class="tb-sep"></div>
   <button class="tb-btn tb-live" id="btnLive" title="Auto sync prices">
     <span class="live-dot"></span><span id="liveLabel">Auto</span>
@@ -1494,6 +1520,7 @@ function renderGrid() {
       if (style.underline) cell.classList.add('cell-underline');
       if (style.strikethrough) cell.classList.add('cell-strikethrough');
       if (style.align) cell.classList.add('cell-align-' + style.align);
+      if (style.valign) cell.classList.add('cell-valign-' + style.valign);
       const bdOf = (rr, cc) => {
         if (rr < 0 || cc < 0 || rr >= ROWS || cc >= COLS) return null;
         const st = cellStyles[rr + COL_HEADERS[cc]];
@@ -1938,17 +1965,41 @@ function evalFormula(src, seen) {
 
   function skip() { while (i < s.length && s[i] === ' ') i++; }
   function expr() {
-    const left = add();
+    const left = cat();
     skip();
     for (const op of ['>=', '<=', '<>', '>', '<', '=']) {
       if (s.startsWith(op, i)) {
         i += op.length;
-        return cmp(left, op, add());
+        return cmp(left, op, cat());
       }
     }
     return left;
   }
+  function cat() {
+    let v = add();
+    skip();
+    while (s[i] === '&') {
+      i++;
+      v = strv(v) + strv(add());
+      skip();
+    }
+    return v;
+  }
+  function strv(v) {
+    if (typeof v === 'boolean') return v ? 'TRUE' : 'FALSE';
+    if (v === null || v === undefined) return '';
+    if (typeof v === 'number') return String(v);
+    if (Array.isArray(v)) return v.map(strv).join('');
+    return String(v);
+  }
   function cmp(a, op, b) {
+    if (typeof a === 'string' || typeof b === 'string') {
+      const x = strv(a).toLowerCase(), y = strv(b).toLowerCase();
+      if (op === '=') return x === y;
+      if (op === '<>') return x !== y;
+      const d = x < y ? -1 : x > y ? 1 : 0;
+      return op === '>' ? d > 0 : op === '<' ? d < 0 : op === '>=' ? d >= 0 : d <= 0;
+    }
     const x = numOrNull(a) || 0, y = numOrNull(b) || 0;
     if (op === '>') return x > y;
     if (op === '<') return x < y;
@@ -2003,6 +2054,19 @@ function evalFormula(src, seen) {
   }
   function primary() {
     skip();
+    if (s[i] === '"') {
+      i++;
+      let out = '';
+      while (i < s.length) {
+        if (s[i] === '"') {
+          if (s[i + 1] === '"') { out += '"'; i += 2; continue; }
+          i++;
+          break;
+        }
+        out += s[i++];
+      }
+      return out;
+    }
     if (s[i] === '(') {
       i++;
       const v = expr();
@@ -2026,7 +2090,7 @@ function evalFormula(src, seen) {
       skip();
       if (s[i] !== ')') throw new Error('syntax');
       i++;
-      return applyFn(fn, args.flat());
+      return applyFn(fn, args);
     }
     const rm = /^[A-Za-z][0-9]{1,2}/.exec(s.slice(i));
     if (rm) {
@@ -2075,7 +2139,79 @@ function evalFormula(src, seen) {
     if (fn === 'COUNT') return vals.length;
     if (fn === 'ABS') return Math.abs(num(args[0]));
     if (fn === 'ROUND') { const f = Math.pow(10, args.length > 1 ? num(args[1]) : 0); return Math.round(num(args[0]) * f) / f; }
+    if (fn === 'ROUNDUP' || fn === 'ROUNDDOWN') {
+      const f = Math.pow(10, args.length > 1 ? num(args[1]) : 0);
+      const x = num(args[0]) * f;
+      const r = fn === 'ROUNDUP' ? (x < 0 ? Math.floor(x) : Math.ceil(x)) : (x < 0 ? Math.ceil(x) : Math.floor(x));
+      return r / f;
+    }
+    if (fn === 'INT') return Math.floor(num(args[0]));
+    if (fn === 'MOD') { const b = num(args[1]); return ((num(args[0]) % b) + b) % b; }
+    if (fn === 'POWER') return Math.pow(num(args[0]), num(args[1]));
+    if (fn === 'SQRT') return Math.sqrt(num(args[0]));
+    if (fn === 'MEDIAN') {
+      if (!vals.length) return 0;
+      const p = vals.slice().sort((a, b) => a - b);
+      const m = p.length >> 1;
+      return p.length % 2 ? p[m] : (p[m - 1] + p[m]) / 2;
+    }
+    if (fn === 'COUNTA') return args.flat().filter(v => v !== null && v !== undefined && v !== '').length;
+    if (fn === 'SUMPRODUCT') {
+      const arrs = args.map(a => Array.isArray(a) ? a.flat().map(numOrNull).filter(x => x !== null) : [num(a)]);
+      const len = arrs.length ? arrs[0].length : 0;
+      if (!len || arrs.some(a => a.length !== len)) throw new Error('syntax');
+      let sum = 0;
+      for (let k = 0; k < len; k++) sum += arrs.reduce((p, a) => p * (a[k] || 0), 1);
+      return sum;
+    }
+    if (fn === 'SUMIF' || fn === 'COUNTIF') {
+      const rng = Array.isArray(args[0]) ? args[0].flat() : [args[0]];
+      const m = critMatch(args.length > 1 ? args[1] : '');
+      let hit = 0;
+      rng.forEach(v => { if (m(v)) hit += fn === 'COUNTIF' ? 1 : (numOrNull(v) || 0); });
+      return hit;
+    }
+    if (fn === 'IF') return truthy(args[0]) ? (args.length > 1 ? args[1] : true) : (args.length > 2 ? args[2] : false);
+    if (fn === 'AND') return args.flat().every(truthy);
+    if (fn === 'OR') return args.flat().some(truthy);
+    if (fn === 'NOT') return !truthy(args[0]);
+    if (fn === 'TRUE') return true;
+    if (fn === 'FALSE') return false;
+    if (fn === 'CONCATENATE' || fn === 'CONCAT') return args.flat().map(strv).join('');
     throw new Error('syntax');
+  }
+  function truthy(v) {
+    if (Array.isArray(v)) v = v[0];
+    if (typeof v === 'boolean') return v;
+    if (typeof v === 'string') {
+      const t = v.trim().toUpperCase();
+      if (t === 'TRUE') return true;
+      if (t === 'FALSE') return false;
+    }
+    return (numOrNull(v) || 0) !== 0;
+  }
+  function critMatch(crit) {
+    if (Array.isArray(crit)) crit = crit[0];
+    const c = crit === null || crit === undefined ? '' : crit;
+    if (typeof c === 'string') {
+      const m = /^(>=|<=|<>|>|<|=)(.*)$/.exec(c);
+      if (m) {
+        const op = m[1], rhs = numOrNull(m[2]);
+        return v => {
+          if (rhs === null) {
+            const sx = (v === null || v === undefined ? '' : String(v)).toLowerCase(), sr = m[2].toLowerCase();
+            return op === '=' ? sx === sr : op === '<>' ? sx !== sr : false;
+          }
+          const x = numOrNull(v);
+          if (x === null) return false;
+          return op === '>' ? x > rhs : op === '<' ? x < rhs : op === '>=' ? x >= rhs : op === '<=' ? x <= rhs : op === '=' ? x === rhs : x !== rhs;
+        };
+      }
+      if (c === '') return v => v === null || v === undefined || v === '';
+      const lc = c.toLowerCase();
+      return v => (v === null || v === undefined ? '' : String(v)).toLowerCase() === lc;
+    }
+    return v => numOrNull(v) === c;
   }
 }
 
@@ -2499,6 +2635,8 @@ function htmlCellStyle(styleStr) {
   const st = {};
   if (/bold|[6-9]00/.test(parseStyleProp(styleStr, 'font-weight'))) st.bold = true;
   if (/italic/.test(parseStyleProp(styleStr, 'font-style'))) st.italic = true;
+  const va = parseStyleProp(styleStr, 'vertical-align').toLowerCase();
+  if (va === 'top' || va === 'middle' || va === 'bottom') st.valign = va;
   const td = parseStyleProp(styleStr, 'text-decoration') + ' ' + parseStyleProp(styleStr, 'text-decoration-line');
   if (/underline/.test(td)) st.underline = true;
   if (/line-through/.test(td)) st.strikethrough = true;
@@ -2826,6 +2964,68 @@ async function runSelfTest() {
     eq('SUM range', disp(R, 2), '15');
   });
   T('ROUND function', () => { set(R, 3, '=ROUND(3.14159,2)'); eq('ROUND function', disp(R, 3), '3.14'); });
+  T('excel function set', () => {
+    set(R + 1, 0, '3'); set(R + 1, 1, '7'); set(R + 1, 2, '5');
+    set(R, 5, '=IF(AVERAGE(A' + (R + 2) + ':C' + (R + 2) + ')>4,"hi","lo")');
+    eq('IF+AVERAGE+text', disp(R, 5), 'hi');
+    set(R, 6, '=COUNTIF(A' + (R + 2) + ':C' + (R + 2) + ',">4")');
+    eq('COUNTIF', disp(R, 6), '2');
+    set(R, 7, '=SUMIF(A' + (R + 2) + ':C' + (R + 2) + ',">4")');
+    eq('SUMIF', disp(R, 7), '12');
+    set(R, 8, '=MEDIAN(A' + (R + 2) + ':C' + (R + 2) + ')');
+    eq('MEDIAN', disp(R, 8), '5');
+    set(R, 9, '=MOD(-7,4)');
+    eq('MOD positive', disp(R, 9), '1');
+    set(R, 10, '=POWER(2,10)');
+    eq('POWER', disp(R, 10), '1,024');
+    set(R, 11, '=CONCATENATE("a","b",1)');
+    eq('CONCATENATE', disp(R, 11), 'ab1');
+    set(R, 12, '=AND(2>1,NOT(FALSE()))');
+    eq('AND/NOT/FALSE', disp(R, 12), 'TRUE');
+    set(R, 13, '="x"&SUM(A' + (R + 2) + ':C' + (R + 2) + ')');
+    eq('& concat', disp(R, 13), 'x15');
+    set(R, 14, '=SUMPRODUCT(A' + (R + 2) + ':C' + (R + 2) + ',A' + (R + 2) + ':C' + (R + 2) + ')');
+    eq('SUMPRODUCT', disp(R, 14), '83');
+    set(R, 15, '=COUNTA(A' + (R + 2) + ':E' + (R + 2) + ')');
+    eq('COUNTA', disp(R, 15), '3');
+    set(R, 16, '=ROUNDDOWN(3.99,1)');
+    eq('ROUNDDOWN', disp(R, 16), '3.9');
+    set(R, 17, '="A"="a"');
+    eq('text compare', disp(R, 17), 'TRUE');
+  });
+  T('function insert menu', () => {
+    setSelection(R, 20, false);
+    toggleFuncMenu();
+    const item = document.querySelector('.fn-item[data-fn="SUM"]');
+    ok('func menu items', !!item && document.querySelectorAll('.fn-item').length === FUNC_LIST.length);
+    item.dispatchEvent(new Event('mousedown', { bubbles: true, cancelable: true }));
+    ok('func inserted', editingCell && editingCell.editor.value === '=SUM(');
+    editingCell.editor.value = '';
+    commitEdit();
+  });
+  T('function insert with range', () => {
+    const S = R - 8;
+    setSelection(S, 1, false);
+    setSelection(S + 2, 1, true);
+    toggleFuncMenu();
+    const item = document.querySelector('.fn-item[data-fn="SUM"]');
+    item.dispatchEvent(new Event('mousedown', { bubbles: true, cancelable: true }));
+    const want = '=SUM(' + cellRefLabel(S, 1) + ':' + cellRefLabel(S + 2, 1) + ')';
+    eq('range auto-insert', editingCell && editingCell.editor.value, want);
+    eq('target below range', editingCell.row, S + 3);
+    editingCell.editor.value = '';
+    commitEdit();
+    setSelection(S + 4, 0, false);
+    setSelection(S + 4, 2, true);
+    toggleFuncMenu();
+    const item2 = document.querySelector('.fn-item[data-fn="AVERAGE"]');
+    item2.dispatchEvent(new Event('mousedown', { bubbles: true, cancelable: true }));
+    const want2 = '=AVERAGE(' + cellRefLabel(S + 4, 0) + ':' + cellRefLabel(S + 4, 2) + ')';
+    eq('row range → right cell', editingCell && editingCell.editor.value, want2);
+    eq('row range target col', editingCell.col, 3);
+    editingCell.editor.value = '';
+    commitEdit();
+  });
   T('div by zero', () => { set(R, 4, '=1/0'); eq('div by zero', disp(R, 4), '#DIV/0!'); });
   T('circular ref', () => { set(R + 3, 0, '=A' + (R + 4)); eq('circular ref', disp(R + 3, 0), '#CYCLE!'); });
   T('comparison', () => { set(R, 5, '=2>1'); eq('comparison', disp(R, 5), 'TRUE'); });
@@ -2857,6 +3057,16 @@ async function runSelfTest() {
     setAlign('center');
     ok('alignment style', cellStyles[key(R, 5)] && cellStyles[key(R, 5)].align === 'center');
     ok('alignment class', !!document.querySelector('.grid-cell[data-row="' + R + '"][data-col="5"].cell-align-center'));
+    setAlign('left');
+    ok('align reset to default', !(cellStyles[key(R, 5)] && cellStyles[key(R, 5)].align));
+  });
+  T('vertical align', () => {
+    setSelection(R, 5, false);
+    setVAlign('middle');
+    ok('valign style', cellStyles[key(R, 5)] && cellStyles[key(R, 5)].valign === 'middle');
+    ok('valign class', !!document.querySelector('.grid-cell[data-row="' + R + '"][data-col="5"].cell-valign-middle'));
+    setVAlign('bottom');
+    ok('valign reset to default', !(cellStyles[key(R, 5)] && cellStyles[key(R, 5)].valign));
   });
   T('number format $ then plain', () => {
     set(R + 1, 2, '1234.5');
@@ -2967,9 +3177,10 @@ function updateToolbarState() {
   document.getElementById('btnItalic').classList.toggle('active', !!style.italic);
   document.getElementById('btnUnderline').classList.toggle('active', !!style.underline);
   document.getElementById('btnStrike').classList.toggle('active', !!style.strikethrough);
-  document.getElementById('btnAlignLeft').classList.toggle('active', style.align === 'left');
-  document.getElementById('btnAlignCenter').classList.toggle('active', style.align === 'center');
-  document.getElementById('btnAlignRight').classList.toggle('active', style.align === 'right');
+  const aEff = style.align || 'left';
+  document.getElementById('btnAlign').classList.toggle('active', aEff !== 'left');
+  const vaEff = style.valign || 'bottom';
+  document.getElementById('btnVAlign').classList.toggle('active', vaEff !== 'bottom');
   document.getElementById('btnBorder').classList.toggle('active', !!(style.bd || style.border));
   if (style.fontSize) document.getElementById('fontSize').value = style.fontSize;
   if (style.fontFamily) document.getElementById('fontFamily').value = style.fontFamily;
@@ -2997,7 +3208,22 @@ function setAlign(align) {
   pushHistory();
   rangeRefs().forEach(ref => {
     if (!cellStyles[ref]) cellStyles[ref] = {};
-    cellStyles[ref].align = align;
+    if (align === 'left') delete cellStyles[ref].align;
+    else cellStyles[ref].align = align;
+  });
+  saveData();
+  renderGrid();
+  updateToolbarState();
+}
+
+function setVAlign(val) {
+  if (!selectedCell) return;
+  commitEdit();
+  pushHistory();
+  rangeRefs().forEach(ref => {
+    if (!cellStyles[ref]) cellStyles[ref] = {};
+    if (val === 'bottom') delete cellStyles[ref].valign;
+    else cellStyles[ref].valign = val;
   });
   saveData();
   renderGrid();
@@ -3103,6 +3329,122 @@ function toggleBorderMenu() {
 document.addEventListener('mousedown', (e) => {
   if (borderMenu && !borderMenu.contains(e.target) && !(e.target.closest && e.target.closest('#btnBorder'))) closeBorderMenu();
 }, true);
+
+const VA_ITEMS = [
+  { val: 'top', label: 'Align top', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="4" x2="18" y2="4"/><path d="M12 20V10"/><path d="M8 14l4-4 4 4"/></svg>' },
+  { val: 'middle', label: 'Align middle', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="12" x2="18" y2="12"/><path d="M12 4v3.5"/><path fill="currentColor" stroke="none" d="M8.5 7.5h7L12 11z"/><path d="M12 20v-3.5"/><path fill="currentColor" stroke="none" d="M8.5 16.5h7L12 13z"/></svg>' },
+  { val: 'bottom', label: 'Align bottom', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v10"/><path d="M8 10l4 4 4-4"/><line x1="6" y1="20" x2="18" y2="20"/></svg>' },
+];
+const ALIGN_ITEMS = [
+  { val: 'left', label: 'Align left', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>' },
+  { val: 'center', label: 'Align center', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="10" x2="6" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="18" y1="18" x2="6" y2="18"/></svg>' },
+  { val: 'right', label: 'Align right', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="21" y1="10" x2="7" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="7" y2="18"/></svg>' },
+];
+let vaMenu = null;
+function closeVAlignMenu() {
+  if (vaMenu) { vaMenu.remove(); vaMenu = null; }
+}
+function toggleVAlignMenu() {
+  const wasOpen = !!vaMenu;
+  closeVAlignMenu();
+  if (wasOpen) return;
+  const eff = (selectedCell && cellStyles[getCellRef(selectedCell.row, selectedCell.col)] && cellStyles[getCellRef(selectedCell.row, selectedCell.col)].valign) || 'bottom';
+  vaMenu = openTbMenu('btnVAlign', VA_ITEMS, eff, closeVAlignMenu, setVAlign);
+}
+let alignMenu = null;
+function closeAlignMenu() {
+  if (alignMenu) { alignMenu.remove(); alignMenu = null; }
+}
+function toggleAlignMenu() {
+  const wasOpen = !!alignMenu;
+  closeAlignMenu();
+  if (wasOpen) return;
+  const eff = (selectedCell && cellStyles[getCellRef(selectedCell.row, selectedCell.col)] && cellStyles[getCellRef(selectedCell.row, selectedCell.col)].align) || 'left';
+  alignMenu = openTbMenu('btnAlign', ALIGN_ITEMS, eff, closeAlignMenu, setAlign);
+}
+function openTbMenu(btnId, items, eff, closeFn, applyFn) {
+  const rect = document.getElementById(btnId).getBoundingClientRect();
+  const menu = document.createElement('div');
+  menu.className = 'menu-dropdown tb-menu';
+  menu.style.left = rect.left + 'px';
+  menu.style.top = (rect.bottom + 2) + 'px';
+  items.forEach(it => {
+    const d = document.createElement('div');
+    d.className = 'tb-menu-item' + (eff === it.val ? ' tb-on' : '');
+    d.dataset.val = it.val;
+    d.title = it.label;
+    d.innerHTML = it.icon;
+    d.addEventListener('mousedown', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      closeFn();
+      applyFn(it.val);
+    });
+    menu.appendChild(d);
+  });
+  document.body.appendChild(menu);
+  return menu;
+}
+document.addEventListener('mousedown', (e) => {
+  if (vaMenu && !vaMenu.contains(e.target) && !(e.target.closest && e.target.closest('#btnVAlign'))) closeVAlignMenu();
+  if (alignMenu && !alignMenu.contains(e.target) && !(e.target.closest && e.target.closest('#btnAlign'))) closeAlignMenu();
+  if (fnMenu && !fnMenu.contains(e.target) && !(e.target.closest && e.target.closest('#btnFunc'))) closeFuncMenu();
+}, true);
+
+const FUNC_LIST = ['SUM', 'AVERAGE', 'COUNT', 'COUNTA', 'MAX', 'MIN', 'MEDIAN', 'SUMIF', 'COUNTIF', 'IF', 'AND', 'OR', 'ROUND', 'ROUNDUP', 'ROUNDDOWN', 'MOD', 'POWER', 'SQRT', 'SUMPRODUCT', 'CONCATENATE'];
+let fnMenu = null;
+function closeFuncMenu() {
+  if (fnMenu) { fnMenu.remove(); fnMenu = null; }
+}
+function insertFunction(name) {
+  const multi = selRange && (selRange.r2 > selRange.r1 || selRange.c2 > selRange.c1);
+  if (multi) {
+    const r1 = selRange.r1, c1 = selRange.c1, r2 = selRange.r2, c2 = selRange.c2;
+    const rangeLabel = cellRefLabel(r1, c1) + ':' + cellRefLabel(r2, c2);
+    const singleRow = r1 === r2;
+    let tr = singleRow ? r1 : r2 + 1;
+    let tc = singleRow ? c2 + 1 : c1;
+    if (tr >= ROWS || tc >= COLS) { tr = r1; tc = c1; }
+    startEdit(tr, tc);
+    if (!editingCell) return;
+    const ed2 = editingCell.editor;
+    ed2.value = '=' + name + '(' + rangeLabel + ')';
+    document.getElementById('formulaInput').value = ed2.value;
+    ed2.setSelectionRange(ed2.value.length, ed2.value.length);
+    return;
+  }
+  if (!selectedCell) return;
+  startEdit(selectedCell.row, selectedCell.col);
+  if (!editingCell) return;
+  const ed = editingCell.editor;
+  ed.value = '=' + name + '(';
+  document.getElementById('formulaInput').value = ed.value;
+  ed.setSelectionRange(ed.value.length, ed.value.length);
+}
+function toggleFuncMenu() {
+  const wasOpen = !!fnMenu;
+  closeFuncMenu();
+  if (wasOpen) return;
+  const rect = document.getElementById('btnFunc').getBoundingClientRect();
+  fnMenu = document.createElement('div');
+  fnMenu.className = 'menu-dropdown fn-menu';
+  fnMenu.style.left = rect.left + 'px';
+  fnMenu.style.top = (rect.bottom + 2) + 'px';
+  FUNC_LIST.forEach(name => {
+    const d = document.createElement('div');
+    d.className = 'fn-item';
+    d.dataset.fn = name;
+    d.textContent = name;
+    d.addEventListener('mousedown', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      closeFuncMenu();
+      insertFunction(name);
+    });
+    fnMenu.appendChild(d);
+  });
+  document.body.appendChild(fnMenu);
+}
 
 function formatSelectedCell(fn) {
   if (!selectedCell) return;
@@ -3372,9 +3714,9 @@ document.getElementById('btnItalic').addEventListener('click', () => toggleStyle
 document.getElementById('btnUnderline').addEventListener('click', () => toggleStyle('underline'));
 document.getElementById('btnStrike').addEventListener('click', () => toggleStyle('strikethrough'));
 document.querySelector('.toolbar').addEventListener('mousedown', () => { commitEdit(); }, true);
-document.getElementById('btnAlignLeft').addEventListener('click', () => setAlign('left'));
-document.getElementById('btnAlignCenter').addEventListener('click', () => setAlign('center'));
-document.getElementById('btnAlignRight').addEventListener('click', () => setAlign('right'));
+document.getElementById('btnAlign').addEventListener('click', (e) => { e.stopPropagation(); toggleAlignMenu(); });
+document.getElementById('btnFunc').addEventListener('click', (e) => { e.stopPropagation(); toggleFuncMenu(); });
+document.getElementById('btnVAlign').addEventListener('click', (e) => { e.stopPropagation(); toggleVAlignMenu(); });
 
 document.getElementById('fontFamily').addEventListener('change', (e) => {
   if (!selectedCell) return;
@@ -4343,7 +4685,7 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.75';
+const APP_BUILD = '2026-09-05.100';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [

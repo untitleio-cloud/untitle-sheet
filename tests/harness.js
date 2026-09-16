@@ -99,17 +99,87 @@ function check(name, cond, detail) {
   // 2. Share button removed
   check('Share 버튼 제거됨', !document.querySelector('.btn-share') && !html.includes('btn-share'));
 
-  // 3. alignment: CSS rule effective (block display) + class applied
+  // 3. alignment: CSS rule effective (block display) + class applied (single dropdown button)
   const styleText = Array.from(document.querySelectorAll('style')).map(s => s.textContent).join('\n');
   const ccRule = styleText.match(/\.grid-cell \.cell-content \{[^}]*\}/);
   check('cell-content display:block', !!ccRule && ccRule[0].includes('display: block'), ccRule && ccRule[0]);
   window.setSelection(2, 2, false);
   g("cellData['2C'] = 'abc'; renderGrid();");
-  document.getElementById('btnAlignCenter').dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  document.getElementById('btnAlign').dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  const alCenter = document.querySelector('.tb-menu-item[data-val="center"]');
+  check('정렬: 드롭다운 3메뉴', document.querySelectorAll('.tb-menu-item').length === 3);
+  check('정렬: 기본 left 강조', alCenter && !alCenter.classList.contains('tb-on') && document.querySelector('.tb-menu-item[data-val="left"]').classList.contains('tb-on'));
+  alCenter.dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true, cancelable: true }));
   check('정렬: cellStyles 반영', g("cellStyles['2C'] && cellStyles['2C'].align") === 'center', JSON.stringify(g("cellStyles['2C']")));
   check('정렬: DOM 클래스', !!document.querySelector('.grid-cell[data-row="2"][data-col="2"].cell-align-center'));
+  check('정렬: 툴바 활성', document.getElementById('btnAlign').classList.contains('active'));
+  check('정렬: 선택 후 메뉴 닫힘', !document.querySelector('.tb-menu-item'));
   const span = document.querySelector('.grid-cell[data-row="2"][data-col="2"] .cell-content');
   check('정렬: span이 block', dom.window.getComputedStyle(span).display === 'block', dom.window.getComputedStyle(span).display);
+  document.getElementById('btnAlign').dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  document.querySelector('.tb-menu-item[data-val="left"]').dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+  check('정렬: left 선택 기본 복귀', !g("cellStyles['2C'].valign") && !g("cellStyles['2C'].align") && !document.getElementById('btnAlign').classList.contains('active'));
+
+  // 3v. vertical align: single dropdown button (Sheets-style), default bottom, menu items
+  const clickVA = () => document.getElementById('btnVAlign').dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  const pickVA = val => {
+    const it = document.querySelector('.tb-menu-item[data-val="' + val + '"]');
+    if (it) it.dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+    return !!it;
+  };
+  window.setSelection(2, 2, false);
+  check('세로정렬: 버튼 단일화(구 3버튼 제거)', !document.getElementById('btnVAlignTop') && !document.getElementById('btnVAlignMiddle') && !document.getElementById('btnVAlignBottom') && !!document.getElementById('btnVAlign'));
+  check('세로정렬: 기본 비활성(bottom)', !document.getElementById('btnVAlign').classList.contains('active'));
+  clickVA();
+  check('세로정렬: 드롭다운 3메뉴', document.querySelectorAll('.tb-menu-item').length === 3);
+  pickVA('top');
+  check('세로정렬: top 스타일', g("cellStyles['2C'] && cellStyles['2C'].valign") === 'top', JSON.stringify(g("cellStyles['2C']")));
+  check('세로정렬: DOM 클래스', !!document.querySelector('.grid-cell[data-row="2"][data-col="2"].cell-valign-top'));
+  check('세로정렬: 툴바 활성', document.getElementById('btnVAlign').classList.contains('active'));
+  check('세로정렬: 선택 후 메뉴 닫힘', !document.querySelector('.tb-menu-item'));
+  clickVA();
+  check('세로정렬: 현재값 강조', (document.querySelector('.tb-menu-item[data-val="top"]') || {}).classList.contains('tb-on'));
+  pickVA('bottom');
+  check('세로정렬: bottom 선택 기본 복귀', !g("cellStyles['2C'].valign") && !document.getElementById('btnVAlign').classList.contains('active'));
+  g("undo();");
+  check('세로정렬: Undo 복원', g("cellStyles['2C'] && cellStyles['2C'].valign") === 'top', JSON.stringify(g("cellStyles['2C']")));
+  g("redo();");
+  check('세로정렬: Redo 재적용', !g("cellStyles['2C'] && cellStyles['2C'].valign"));
+
+  // 3f. Excel function set (IF/SUMIF/COUNTIF/& with strings)
+  g("cellData['11A'] = '3'; cellData['11B'] = '7'; cellData['11C'] = '5';");
+  g("cellData['12A'] = '=IF(SUM(A12:C12)>10,\"big\",\"small\")'; cellData['12B'] = '=SUMIF(A12:C12,\">4\")'; cellData['12C'] = '=COUNTIF(A12:C12,\">4\")'; cellData['12D'] = '=\"x\"&SUM(A12:C12)'; cellData['12E'] = '=MEDIAN(A12:C12)'; renderGrid();");
+  const fxTxt = col => {
+    const el = document.querySelector('.grid-cell[data-row="12"][data-col="' + col + '"] .cell-content');
+    return el ? el.textContent : '(none)';
+  };
+  check('함수 IF 텍스트', fxTxt(0) === 'big', fxTxt(0));
+  check('함수 SUMIF', fxTxt(1) === '12', fxTxt(1));
+  check('함수 COUNTIF', fxTxt(2) === '2', fxTxt(2));
+  check('함수 & 연결', fxTxt(3) === 'x15', fxTxt(3));
+  check('함수 MEDIAN', fxTxt(4) === '5', fxTxt(4));
+  g("delete cellData['11A']; delete cellData['11B']; delete cellData['11C']; delete cellData['12A']; delete cellData['12B']; delete cellData['12C']; delete cellData['12D']; delete cellData['12E']; renderGrid();");
+
+  // 3g. function toolbar menu (Sigma left of Auto)
+  window.setSelection(11, 0, false);
+  document.getElementById('btnFunc').dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  check('함수 메뉴: 20종 열림', document.querySelectorAll('.fn-item').length === 20, String(document.querySelectorAll('.fn-item').length));
+  const fnSum = document.querySelector('.fn-item[data-fn="SUM"]');
+  fnSum.dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+  check('함수 삽입: =SUM( 편집 진입', g("editingCell && editingCell.editor.value") === '=SUM(', g("editingCell && editingCell.editor.value"));
+  check('함수 메뉴: 선택 후 닫힘', !document.querySelector('.fn-item'));
+  g("editingCell.editor.value = ''; commitEdit();");
+
+  // 3h. range selection + function → auto range inserted below the selection
+  g("cellData['11B'] = '1'; cellData['12B'] = '2'; cellData['13B'] = '3'; renderGrid();");
+  window.setSelection(11, 1, false);
+  window.setSelection(13, 1, true);
+  document.getElementById('btnFunc').dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  document.querySelector('.fn-item[data-fn="AVERAGE"]').dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+  check('범위+함수 자동입력', g("editingCell && editingCell.editor.value") === '=AVERAGE(B12:B14)', g("editingCell && editingCell.editor.value"));
+  check('범위+함수: 하단 셀에 삽입', g("editingCell && editingCell.row") === 14 && g("editingCell && editingCell.col") === 1);
+  g("editingCell.editor.value = ''; commitEdit();");
+  g("delete cellData['11B']; delete cellData['12B']; delete cellData['13B']; renderGrid();");
 
   // 4. plain number format resets $/%/,
   g("cellData['3C'] = '$1,234.50'; cellData['3D'] = '12.34%'; cellData['3E'] = '1,234,567'; renderGrid();");
