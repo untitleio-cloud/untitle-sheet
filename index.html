@@ -818,6 +818,113 @@ body {
   transition: opacity 0.2s;
 }
 .sheet-tab:hover .tab-close { opacity: 1; }
+.sheet-tab { user-select: none; }
+.tab-rename {
+  font: inherit; color: #202124; background: #fff;
+  border: 1px solid #1a73e8; border-radius: 3px; outline: none;
+  padding: 1px 6px; width: 110px; min-width: 40px;
+}
+
+/* ===== SHEET2: FINANCE DASHBOARD ===== */
+#sheet2View, #sheet3View {
+  flex: 1;
+  overflow: auto;
+  background: #f7f8fa;
+  padding: 16px;
+  color: #202124;
+}
+#sheet2View > *, #sheet3View > * {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.cd-up { color: #188038; }
+.cd-down { color: #d93025; }
+.cd-flat { color: #80868b; }
+.s2-head { padding: 2px 2px 10px; }
+.s2-title { font-size: 20px; font-weight: 700; color: #202124; }
+.s2-subtitle { font-size: 12px; color: #80868b; margin-top: 3px; }
+.s2-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.s2-card {
+  background: #fff;
+  border: 1px solid #e3e5e8;
+  border-radius: 12px;
+  padding: 6px 16px;
+}
+.s2-grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.s2-item { padding: 12px 4px; }
+.s2-grid2 .s2-item:nth-child(odd) { border-right: 1px solid #f1f3f4; padding-right: 14px; }
+.s2-grid2 .s2-item:nth-child(even) { padding-left: 14px; }
+.s2-grid2 .s2-item:nth-child(-n+2) { border-bottom: 1px solid #f1f3f4; }
+.s2-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: #3c4043;
+  font-weight: 500;
+}
+.s2-tag { font-size: 10.5px; color: #9aa0a6; font-weight: 400; }
+.s2-tag.live { color: #188038; }
+.s2-tag.live::before, .s2-tbl .s2-tag.live::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #34a853;
+  margin-right: 4px;
+  vertical-align: 1px;
+}
+.s2-val { font-size: 19px; font-weight: 700; margin-top: 5px; letter-spacing: -0.2px; }
+.s2-chg { font-size: 12px; font-weight: 600; margin-top: 2px; }
+.s2-up { color: #d93025; }
+.s2-down { color: #1a73e8; }
+.s2-flat { color: #80868b; }
+.s2-tables {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+.s2-panel {
+  background: #fff;
+  border: 1px solid #e3e5e8;
+  border-radius: 12px;
+  padding: 14px 16px 8px;
+}
+.s2-h { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.s2-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.s2-tbl th {
+  text-align: right;
+  color: #80868b;
+  font-weight: 500;
+  font-size: 12px;
+  padding: 8px 6px;
+  border-bottom: 1px solid #e8eaed;
+}
+.s2-tbl th:first-child { text-align: left; }
+.s2-tbl td {
+  padding: 11px 6px;
+  border-bottom: 1px solid #f1f3f4;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.s2-tbl td:first-child { text-align: left; font-weight: 500; }
+.s2-tbl .s2-sub { display: block; font-size: 10.5px; color: #9aa0a6; font-weight: 400; margin-top: 2px; }
+.s2-tbl .s2-time { text-align: center; font-size: 11px; }
+@media (max-width: 900px) {
+  .s2-cards { grid-template-columns: 1fr; }
+  .s2-tables { grid-template-columns: 1fr; }
+  #sheet2View, #sheet3View { padding: 10px; }
+}
 .sheet-add {
   width: 24px;
   height: 24px;
@@ -1058,6 +1165,137 @@ body {
   <input class="formula-input" id="formulaInput" type="text" spellcheck="false">
 </div>
 
+<!-- Sheet2: Crypto Dashboard -->
+<div id="sheet2View" hidden>
+  <div class="s2-head">
+    <div class="s2-title">Crypto Dashboard</div>
+    <div class="s2-subtitle">Live prices, market cap &amp; sentiment · auto-refresh every 60s</div>
+  </div>
+  <div class="s2-cards">
+    <div class="s2-card"><div class="s2-grid2">
+      <div class="s2-item"><div class="s2-name">Bitcoin BTC <span class="s2-tag live">Live</span></div><div class="s2-val" data-cd="btc">—</div><div class="s2-chg" data-cdc="btc">—</div></div>
+      <div class="s2-item"><div class="s2-name">Ethereum ETH <span class="s2-tag live">Live</span></div><div class="s2-val" data-cd="eth">—</div><div class="s2-chg" data-cdc="eth">—</div></div>
+      <div class="s2-item"><div class="s2-name">Solana SOL <span class="s2-tag live">Live</span></div><div class="s2-val" data-cd="sol">—</div><div class="s2-chg" data-cdc="sol">—</div></div>
+      <div class="s2-item"><div class="s2-name">XRP <span class="s2-tag live">Live</span></div><div class="s2-val" data-cd="xrp">—</div><div class="s2-chg" data-cdc="xrp">—</div></div>
+    </div></div>
+    <div class="s2-card"><div class="s2-grid2">
+      <div class="s2-item"><div class="s2-name">Total Market Cap <span class="s2-tag live">Live</span></div><div class="s2-val" data-cd="mcap">—</div><div class="s2-chg" data-cdc="mcap">—</div></div>
+      <div class="s2-item"><div class="s2-name">24h Volume <span class="s2-tag live">Live</span></div><div class="s2-val" data-cd="vol">—</div><div class="s2-chg" data-cdc="vol">—</div></div>
+      <div class="s2-item"><div class="s2-name">BTC Dominance <span class="s2-tag live">Live</span></div><div class="s2-val" data-cd="btcdom">—</div><div class="s2-chg" data-cdc="btcdom">—</div></div>
+      <div class="s2-item"><div class="s2-name">Fear &amp; Greed <span class="s2-tag live">Live</span></div><div class="s2-val" data-cd="fng">—</div><div class="s2-chg" data-cdc="fng">—</div></div>
+    </div></div>
+  </div>
+  <div class="s2-tables">
+    <div class="s2-panel">
+      <div class="s2-h">Top 10 by Market Cap</div>
+      <table class="s2-tbl">
+        <thead><tr><th>Coin</th><th>Price</th><th>24h</th><th>Market Cap</th></tr></thead>
+        <tbody id="cdTop"></tbody>
+      </table>
+    </div>
+    <div class="s2-panel">
+      <div class="s2-h">Layer 1 &amp; Infrastructure</div>
+      <table class="s2-tbl">
+        <thead><tr><th>Coin</th><th>Price</th><th>24h</th><th>Market Cap</th></tr></thead>
+        <tbody id="cdL1"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="s2-tables">
+    <div class="s2-panel">
+      <div class="s2-h">Top Gainers (24h)</div>
+      <table class="s2-tbl">
+        <thead><tr><th>Coin</th><th>Price</th><th>24h</th><th>Market Cap</th></tr></thead>
+        <tbody id="cdUp"></tbody>
+      </table>
+    </div>
+    <div class="s2-panel">
+      <div class="s2-h">Top Losers (24h)</div>
+      <table class="s2-tbl">
+        <thead><tr><th>Coin</th><th>Price</th><th>24h</th><th>Market Cap</th></tr></thead>
+        <tbody id="cdDown"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Sheet3: Finance Dashboard -->
+<div id="sheet3View" hidden>
+  <div class="s2-head">
+    <div class="s2-title">Markets Dashboard</div>
+    <div class="s2-subtitle">Live rates, commodities &amp; USD indicators · auto-refresh every 60s</div>
+  </div>
+  <div class="s2-cards">
+    <div class="s2-card"><div class="s2-grid2">
+      <div class="s2-item"><div class="s2-name">Dollar Index <span class="s2-tag">Delayed 10m</span></div><div class="s2-val" data-s2="dxy">—</div><div class="s2-chg" data-s2c="dxy">—</div></div>
+      <div class="s2-item"><div class="s2-name">EUR/USD <span class="s2-tag">Delayed 10m</span></div><div class="s2-val" data-s2="eurusd">—</div><div class="s2-chg" data-s2c="eurusd">—</div></div>
+      <div class="s2-item"><div class="s2-name">USD/JPY <span class="s2-tag">Delayed 10m</span></div><div class="s2-val" data-s2="usdjpy">—</div><div class="s2-chg" data-s2c="usdjpy">—</div></div>
+      <div class="s2-item"><div class="s2-name">GBP/USD <span class="s2-tag">Delayed 10m</span></div><div class="s2-val" data-s2="gbpusd">—</div><div class="s2-chg" data-s2c="gbpusd">—</div></div>
+    </div></div>
+    <div class="s2-card"><div class="s2-grid2">
+      <div class="s2-item"><div class="s2-name">WTI <span class="s2-tag">Delayed 10m</span></div><div class="s2-val" data-s2="wti">—</div><div class="s2-chg" data-s2c="wti">—</div></div>
+      <div class="s2-item"><div class="s2-name">Brent <span class="s2-tag">Delayed 10m</span></div><div class="s2-val" data-s2="brent">—</div><div class="s2-chg" data-s2c="brent">—</div></div>
+      <div class="s2-item"><div class="s2-name">Gold <span class="s2-tag">Delayed 10m</span></div><div class="s2-val" data-s2="gold">—</div><div class="s2-chg" data-s2c="gold">—</div></div>
+      <div class="s2-item"><div class="s2-name">Palladium <span class="s2-tag">Delayed 10m</span></div><div class="s2-val" data-s2="palladium">—</div><div class="s2-chg" data-s2c="palladium">—</div></div>
+    </div></div>
+  </div>
+  <div class="s2-tables">
+    <div class="s2-panel">
+      <div class="s2-h">US Treasury Yields</div>
+      <table class="s2-tbl">
+        <thead><tr><th>Bond</th><th>Yield</th><th>Change</th><th>As of</th></tr></thead>
+        <tbody>
+          <tr><td>&#127482;&#127480; 13-Week Bill</td><td data-s2="us13w">—</td><td data-s2c="us13w">—</td><td class="s2-time"><span class="s2-tag live">Live</span></td></tr>
+          <tr><td>&#127482;&#127480; 5-Year Note</td><td data-s2="us5y">—</td><td data-s2c="us5y">—</td><td class="s2-time"><span class="s2-tag live">Live</span></td></tr>
+          <tr><td>&#127482;&#127480; 10-Year Note</td><td data-s2="us10y">—</td><td data-s2c="us10y">—</td><td class="s2-time"><span class="s2-tag live">Live</span></td></tr>
+          <tr><td>&#127482;&#127480; 30-Year Bond</td><td data-s2="us30y">—</td><td data-s2c="us30y">—</td><td class="s2-time"><span class="s2-tag live">Live</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="s2-panel">
+      <div class="s2-h">USD Rates &amp; Spreads</div>
+      <table class="s2-tbl">
+        <thead><tr><th>Indicator</th><th>Rate</th><th>Change</th><th>As of</th></tr></thead>
+        <tbody>
+          <tr><td>&#127482;&#127480; Fed Funds Target (upper)</td><td data-s2r="fed">3.75%</td><td class="s2-flat" data-s2rc="fed">0.00</td><td data-s2d="fed">Jul 30</td></tr>
+          <tr><td>10Y &#8722; Fed Funds</td><td data-s2="sp10f">—</td><td data-s2c="sp10f">—</td><td class="s2-time"><span class="s2-tag live">Live</span></td></tr>
+          <tr><td>10Y &#8722; 3M Spread</td><td data-s2="sp103m">—</td><td data-s2c="sp103m">—</td><td class="s2-time"><span class="s2-tag live">Live</span></td></tr>
+          <tr><td>10Y &#8722; 5Y Spread</td><td data-s2="sp105">—</td><td data-s2c="sp105">—</td><td class="s2-time"><span class="s2-tag live">Live</span></td></tr>
+          <tr><td>30Y &#8722; 10Y Spread</td><td data-s2="sp3010">—</td><td data-s2c="sp3010">—</td><td class="s2-time"><span class="s2-tag live">Live</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="s2-tables">
+    <div class="s2-panel">
+      <div class="s2-h">Energy</div>
+      <table class="s2-tbl">
+        <thead><tr><th>Contract</th><th>Price</th><th>Change</th><th>As of</th></tr></thead>
+        <tbody>
+          <tr><td>WTI<span class="s2-sub">USD/BBL</span></td><td data-s2="wti">—</td><td data-s2c="wti">—</td><td class="s2-time"><span class="s2-tag">Delayed 10m</span></td></tr>
+          <tr><td>Brent<span class="s2-sub">USD/BBL</span></td><td data-s2="brent">—</td><td data-s2c="brent">—</td><td class="s2-time"><span class="s2-tag">Delayed 10m</span></td></tr>
+          <tr><td>RBOB Gasoline<span class="s2-sub">USD/U GAL</span></td><td data-s2="rbob">—</td><td data-s2c="rbob">—</td><td class="s2-time"><span class="s2-tag">Delayed 10m</span></td></tr>
+          <tr><td>Heating Oil<span class="s2-sub">USD/U GAL</span></td><td data-s2="ho">—</td><td data-s2c="ho">—</td><td class="s2-time"><span class="s2-tag">Delayed 10m</span></td></tr>
+          <tr><td>Natural Gas<span class="s2-sub">USD/MMBtu</span></td><td data-s2="ng">—</td><td data-s2c="ng">—</td><td class="s2-time"><span class="s2-tag">Delayed 10m</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="s2-panel">
+      <div class="s2-h">Metals</div>
+      <table class="s2-tbl">
+        <thead><tr><th>Contract</th><th>Price</th><th>Change</th><th>As of</th></tr></thead>
+        <tbody>
+          <tr><td>Gold<span class="s2-sub">USD/OZS</span></td><td data-s2="gold">—</td><td data-s2c="gold">—</td><td class="s2-time"><span class="s2-tag">Delayed 10m</span></td></tr>
+          <tr><td>Palladium<span class="s2-sub">USD/OZS</span></td><td data-s2="palladium">—</td><td data-s2c="palladium">—</td><td class="s2-time"><span class="s2-tag">Delayed 10m</span></td></tr>
+          <tr><td>Silver<span class="s2-sub">USD/OZS</span></td><td data-s2="silver">—</td><td data-s2c="silver">—</td><td class="s2-time"><span class="s2-tag">Delayed 10m</span></td></tr>
+          <tr><td>Copper (Futures)<span class="s2-sub">USD/LBS</span></td><td data-s2="copper">—</td><td data-s2c="copper">—</td><td class="s2-time"><span class="s2-tag">Delayed 10m</span></td></tr>
+          <tr><td>Platinum<span class="s2-sub">USD/OZS</span></td><td data-s2="platinum">—</td><td data-s2c="platinum">—</td><td class="s2-time"><span class="s2-tag">Delayed 10m</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <!-- Spreadsheet Grid -->
 <div class="spreadsheet-container" id="sheetContainer">
   <div class="grid" id="grid"></div>
@@ -1066,9 +1304,9 @@ body {
 <!-- Bottom Bar -->
 <div class="bottom-bar">
   <div class="sheet-add" title="Add sheet">+</div>
-  <div class="sheet-tab active">Sheet1</div>
-  <div class="sheet-tab">Sheet2</div>
-  <div class="sheet-tab">Sheet3</div>
+  <div class="sheet-tab active" data-view="grid">Sheet1</div>
+  <div class="sheet-tab" data-view="crypto">Sheet2</div>
+  <div class="sheet-tab" data-view="markets">Sheet3</div>
   <span class="cg-credit" id="cgCredit" hidden>Prices by <a href="https://www.coingecko.com" target="_blank" rel="noopener">CoinGecko</a></span>
 </div>
 
@@ -3026,9 +3264,70 @@ async function runSelfTest() {
     editingCell.editor.value = '';
     commitEdit();
   });
+  T('sheet3 markets dashboard', () => {
+    const tabs = document.querySelectorAll('.sheet-tab');
+    tabs[2].dispatchEvent(new Event('click', { bubbles: true }));
+    ok('sheet3 shown', !document.getElementById('sheet3View').hidden);
+    ok('grid hidden', document.getElementById('sheetContainer').style.display === 'none');
+    ok('cards 8', document.querySelectorAll('#sheet3View .s2-item').length === 8);
+    ok('tables 4', document.querySelectorAll('#sheet3View .s2-tbl').length === 4);
+    tabs[0].dispatchEvent(new Event('click', { bubbles: true }));
+    ok('back to sheet1', document.getElementById('sheet3View').hidden && document.getElementById('sheetContainer').style.display === '');
+  });
+  T('esc returns to grid', () => {
+    const tabs = document.querySelectorAll('.sheet-tab');
+    tabs[1].dispatchEvent(new Event('click', { bubbles: true }));
+    ok('crypto open for esc', !document.getElementById('sheet2View').hidden);
+    document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    ok('esc closes crypto', document.getElementById('sheet2View').hidden && document.getElementById('sheetContainer').style.display === '');
+    ok('esc activates grid tab', tabs[0].classList.contains('active'));
+    tabs[2].dispatchEvent(new Event('click', { bubbles: true }));
+    document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    ok('esc closes markets', document.getElementById('sheet3View').hidden);
+  });
+  T('sheet tab rename', () => {
+    const tabs = document.querySelectorAll('.sheet-tab');
+    tabs[2].dispatchEvent(new Event('dblclick', { bubbles: true, cancelable: true }));
+    const inp = tabs[2].querySelector('input.tab-rename');
+    ok('rename input opens', !!inp);
+    if (inp) {
+      inp.value = 'Markets';
+      inp.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      ok('name committed', tabs[2].textContent.trim() === 'Markets');
+      tabs[2].dispatchEvent(new Event('click', { bubbles: true }));
+      ok('renamed tab still opens markets view', !document.getElementById('sheet3View').hidden);
+      tabs[2].dispatchEvent(new Event('dblclick', { bubbles: true, cancelable: true }));
+      const inp2 = tabs[2].querySelector('input.tab-rename');
+      inp2.value = 'Sheet3';
+      inp2.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      ok('name restored', tabs[2].textContent.trim() === 'Sheet3');
+    }
+    tabs[0].dispatchEvent(new Event('click', { bubbles: true }));
+  });
+  T('sheet2 crypto dashboard', () => {
+    const tabs = document.querySelectorAll('.sheet-tab');
+    tabs[1].dispatchEvent(new Event('click', { bubbles: true }));
+    ok('crypto shown', !document.getElementById('sheet2View').hidden);
+    ok('crypto grid hidden', document.getElementById('sheetContainer').style.display === 'none');
+    ok('crypto cards 8', document.querySelectorAll('#sheet2View .s2-item').length === 8);
+    ok('crypto tables 4', document.querySelectorAll('#sheet2View .s2-tbl').length === 4);
+    ok('crypto top10 rows', document.querySelectorAll('#cdTop tr').length === 10);
+    ok('crypto l1 rows', document.querySelectorAll('#cdL1 tr').length === 8);
+    ok('crypto gainers rows', document.querySelectorAll('#cdUp tr').length === 5);
+    ok('crypto losers rows', document.querySelectorAll('#cdDown tr').length === 5);
+    tabs[0].dispatchEvent(new Event('click', { bubbles: true }));
+    ok('back to sheet1 from crypto', document.getElementById('sheet2View').hidden && document.getElementById('sheetContainer').style.display === '');
+  });
   T('div by zero', () => { set(R, 4, '=1/0'); eq('div by zero', disp(R, 4), '#DIV/0!'); });
   T('circular ref', () => { set(R + 3, 0, '=A' + (R + 4)); eq('circular ref', disp(R + 3, 0), '#CYCLE!'); });
   T('comparison', () => { set(R, 5, '=2>1'); eq('comparison', disp(R, 5), 'TRUE'); });
+  T('currency skips formulas', () => {
+    set(R, 6, '1000'); set(R + 1, 6, '2000'); set(R + 2, 6, '=SUM(G' + (R + 1) + ':G' + (R + 2) + ')');
+    setSelection(R + 2, 6, false);
+    document.getElementById('btnFmtCurrency').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    eq('formula intact', get(R + 2, 6), '=SUM(G' + (R + 1) + ':G' + (R + 2) + ')');
+    eq('formula value', disp(R + 2, 6), '3,000');
+  });
   T('copy & paste', () => {
     setSelection(R, 0, false);
     copySelection(false);
@@ -3453,6 +3752,7 @@ function formatSelectedCell(fn) {
   pushHistory();
   refs.forEach(ref => {
     const raw = (cellData[ref] || '').toString();
+    if (raw.trim().startsWith('=')) return;
     const num = parseFloat(raw.replace(/[^0-9.\-]/g, ''));
     if (!isNaN(num)) {
       cellData[ref] = fn(num);
@@ -4685,7 +4985,326 @@ function applyDataSource(k) {
   }
 }
 
-const APP_BUILD = '2026-09-05.100';
+// ===== SHEET2: FINANCE DASHBOARD =====
+const S2_SYMS = {
+  eurusd: 'EURUSD=X', usdjpy: 'JPY=X', us13w: '^IRX', us5y: '^FVX', us30y: '^TYX',
+  dxy: 'DX-Y.NYB', gbpusd: 'GBPUSD=X',
+  wti: 'CL=F', brent: 'BZ=F', gold: 'GC=F', silver: 'SI=F', copper: 'HG=F', platinum: 'PL=F', palladium: 'PA=F',
+  rbob: 'RB=F', ho: 'HO=F', ng: 'NG=F', us10y: '^TNX'
+};
+const S2_DEC = { dxy: 2, eurusd: 4, usdjpy: 4, gbpusd: 4,
+  wti: 2, brent: 2, gold: 2, silver: 2, copper: 4, platinum: 2, palladium: 2, rbob: 4, ho: 4, ng: 4, us10y: 4, us13w: 4, us5y: 4, us30y: 4, sp10f: 4, sp103m: 4, sp105: 4, sp3010: 4 };
+const s2Data = {};
+let s2Active = false, s2Timer = null, s2Fetching = false;
+const S2_PROXY = '';
+function s2Base() {
+  if (S2_PROXY) return S2_PROXY.replace(/\/+$/, '') + '/quote/';
+  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return '/quote/';
+  return 'https://query1.finance.yahoo.com/v8/finance/chart/';
+}
+async function s2ProxyRefresh() {
+  if (!S2_PROXY) return;
+  try {
+    const r = await fetch(S2_PROXY.replace(/\/+$/, '') + '/api/indicators');
+    if (!r.ok) return;
+    const j = await r.json();
+    (j.bonds || []).forEach(b => {
+      const v = document.querySelector('[data-s2="' + b.id + '"]');
+      if (v && typeof b.v === 'number') v.textContent = b.v.toFixed(4);
+      const c = document.querySelector('[data-s2c="' + b.id + '"]');
+      if (c && b.chg) { c.className = b.cls; c.textContent = b.chg; }
+      const t = document.querySelector('[data-s2t="' + b.id + '"]');
+      if (t && b.d) t.textContent = b.d;
+    });
+    (j.rates || []).forEach(x => {
+      const v = document.querySelector('[data-s2r="' + x.id + '"]'); if (v) v.textContent = x.v;
+      const c = document.querySelector('[data-s2rc="' + x.id + '"]'); if (c) { c.className = x.cls; c.textContent = x.chg; }
+      const d = document.querySelector('[data-s2d="' + x.id + '"]'); if (d) d.textContent = x.d;
+    });
+  } catch (e) {}
+}
+function s2Fmt(id, v) {
+  if (v === null || v === undefined || !isFinite(v)) return '—';
+  let d = S2_DEC[id];
+  if (d === undefined) d = 2;
+  return v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+const FED_FUNDS_TOP = 3.75;
+function s2Derived() {
+  const out = {};
+  Object.keys(s2Data).forEach(k => { out[k] = s2Data[k]; });
+  const tn = s2Data.us10y || {}, f5 = s2Data.us5y || {}, t30 = s2Data.us30y || {}, t13 = s2Data.us13w || {};
+  const sp = (id, a, b) => {
+    if (typeof a.p === 'number' && typeof b.p === 'number') {
+      out[id] = { p: a.p - b.p, prev: (a.prev || a.p) - (b.prev || b.p) };
+    }
+  };
+  sp('sp103m', tn, t13);
+  sp('sp105', tn, f5);
+  sp('sp3010', t30, tn);
+  if (typeof tn.p === 'number') out.sp10f = { p: tn.p - FED_FUNDS_TOP, prev: (tn.prev || tn.p) - FED_FUNDS_TOP };
+  return out;
+}
+function s2Render() {
+  const d = s2Derived();
+  Object.keys(d).forEach(id => {
+    const els = document.querySelectorAll('[data-s2="' + id + '"]');
+    const cs = document.querySelectorAll('[data-s2c="' + id + '"]');
+    const it = d[id] || {};
+    const okNum = typeof it.p === 'number' && typeof it.prev === 'number' && isFinite(it.p) && isFinite(it.prev);
+    els.forEach(el => { el.textContent = s2Fmt(id, it.p); });
+    if (!cs.length) return;
+    if (!okNum) { cs.forEach(c => { c.textContent = '—'; c.className = 's2-chg s2-flat'; }); return; }
+    const diff = it.p - it.prev;
+    const dec = S2_DEC[id] === undefined ? 2 : S2_DEC[id];
+    const zero = Math.abs(diff) < 0.5 * Math.pow(10, -dec);
+    const pct = it.prev ? (diff / Math.abs(it.prev)) * 100 : 0;
+    const txt = zero ? s2Fmt(id, 0) : (diff > 0 ? '\u25B2 ' : '\u25BC ') + s2Fmt(id, Math.abs(diff)) +
+      '(' + (diff >= 0 ? '+' : '-') + Math.abs(pct).toFixed(2) + '%)';
+    const cls = 's2-chg ' + (zero ? 's2-flat' : diff > 0 ? 's2-up' : 's2-down');
+    cs.forEach(c => { c.className = cls; c.textContent = txt; });
+  });
+}
+const S2_CACHE_KEY = 'untitle.s2.v1';
+function s2SaveCache() {
+  try { localStorage.setItem(S2_CACHE_KEY, JSON.stringify({ ts: Date.now(), data: s2Data })); } catch (e) {}
+}
+function s2LoadCache() {
+  try {
+    const j = JSON.parse(localStorage.getItem(S2_CACHE_KEY) || 'null');
+    if (!j || !j.data) return;
+    Object.keys(j.data).forEach(k => { if (!s2Data[k]) s2Data[k] = j.data[k]; });
+  } catch (e) {}
+}
+async function s2Refresh() {
+  if (s2Fetching) return;
+  s2Fetching = true;
+  await Promise.all(Object.keys(S2_SYMS).map(async id => {
+    try {
+      const r = await fetch(s2Base() + encodeURIComponent(S2_SYMS[id]));
+      if (!r.ok) throw new Error('http');
+      const j = await r.json();
+      const m = j.chart.result[0].meta;
+      s2Data[id] = { p: m.regularMarketPrice || null, prev: m.chartPreviousClose || m.previousClose || m.regularMarketPrice || null };
+    } catch (e) {
+      if (!s2Data[id]) s2Data[id] = { p: null, prev: null };
+    }
+    s2Render();
+    s2SaveCache();
+  }));
+  s2Fetching = false;
+}
+function s2Activate() {
+  s2Active = true;
+  s2Refresh();
+  s2ProxyRefresh();
+  if (!s2Timer) s2Timer = setInterval(() => { if (s2Active) { s2Refresh(); s2ProxyRefresh(); } }, 60000);
+}
+s2LoadCache();
+s2Render();
+s2Refresh();
+s2ProxyRefresh();
+
+// ===== Sheet2: Crypto Dashboard (CoinGecko + alternative.me, CORS-friendly) =====
+const CD_L1_IDS = ['ethereum', 'solana', 'cardano', 'avalanche-2', 'polkadot', 'near', 'aptos', 'tron'];
+const CD_STABLE_IDS = ['tether', 'usd-coin', 'dai', 'usds', 'first-digital-usd'];
+let cdActive = false, cdTimer = null, cdFetching = false;
+let cdData = {
+  rows: [
+    { id: 'bitcoin', sym: 'BTC', name: 'Bitcoin', p: 76382, ch: 0.88, cap: 1.51e12 },
+    { id: 'ethereum', sym: 'ETH', name: 'Ethereum', p: 3120, ch: 1.15, cap: 3.76e11 },
+    { id: 'tether', sym: 'USDT', name: 'Tether', p: 1.00, ch: 0.01, cap: 1.83e11 },
+    { id: 'ripple', sym: 'XRP', name: 'XRP', p: 1.62, ch: 2.05, cap: 9.2e10 },
+    { id: 'binancecoin', sym: 'BNB', name: 'BNB', p: 690, ch: 0.42, cap: 9.6e10 },
+    { id: 'solana', sym: 'SOL', name: 'Solana', p: 148.2, ch: -0.62, cap: 7.9e10 },
+    { id: 'usd-coin', sym: 'USDC', name: 'USDC', p: 1.00, ch: 0.00, cap: 6.1e10 },
+    { id: 'tron', sym: 'TRX', name: 'TRON', p: 0.284, ch: 1.20, cap: 4.9e10 },
+    { id: 'dogecoin', sym: 'DOGE', name: 'Dogecoin', p: 0.241, ch: 3.94, cap: 3.5e10 },
+    { id: 'cardano', sym: 'ADA', name: 'Cardano', p: 0.842, ch: -3.12, cap: 2.9e10 },
+    { id: 'avalanche-2', sym: 'AVAX', name: 'Avalanche', p: 38.4, ch: -1.83, cap: 1.5e10 },
+    { id: 'chainlink', sym: 'LINK', name: 'Chainlink', p: 18.6, ch: 1.85, cap: 1.1e10 },
+    { id: 'polkadot', sym: 'DOT', name: 'Polkadot', p: 7.12, ch: -2.41, cap: 1.0e10 },
+    { id: 'litecoin', sym: 'LTC', name: 'Litecoin', p: 104.5, ch: 0.96, cap: 7.9e9 },
+    { id: 'near', sym: 'NEAR', name: 'NEAR', p: 6.85, ch: 4.82, cap: 7.5e9 },
+    { id: 'uniswap', sym: 'UNI', name: 'Uniswap', p: 11.2, ch: 2.30, cap: 6.7e9 },
+    { id: 'aptos', sym: 'APT', name: 'Aptos', p: 9.34, ch: 6.21, cap: 5.4e9 },
+    { id: 'stellar', sym: 'XLM', name: 'Stellar', p: 0.312, ch: 1.44, cap: 8.9e9 },
+    { id: 'hedera-hashgraph', sym: 'HBAR', name: 'Hedera', p: 0.228, ch: -1.07, cap: 8.4e9 },
+    { id: 'cosmos', sym: 'ATOM', name: 'Cosmos', p: 7.94, ch: -0.55, cap: 3.6e9 }
+  ],
+  mcap: 2.63e12, mcapCh: 0.9, vol: 8.42e10, btcdom: 58.3,
+  fng: { v: 50, c: 'Neutral' }
+};
+function cdFmtUsd(v) {
+  if (typeof v !== 'number' || !isFinite(v)) return '—';
+  if (v >= 1000) return '$' + v.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  if (v >= 1) return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return '$' + v.toFixed(4);
+}
+function cdFmtCap(v) {
+  if (typeof v !== 'number' || !isFinite(v)) return '—';
+  if (v >= 1e12) return '$' + (v / 1e12).toFixed(2) + 'T';
+  if (v >= 1e9) return '$' + (v / 1e9).toFixed(1) + 'B';
+  return '$' + (v / 1e6).toFixed(1) + 'M';
+}
+function cdPct(ch) {
+  if (typeof ch !== 'number' || !isFinite(ch)) return { t: '—', c: 'cd-flat' };
+  const cls = ch > 0.005 ? 'cd-up' : ch < -0.005 ? 'cd-down' : 'cd-flat';
+  const arrow = ch > 0.005 ? '\u25B2 ' : ch < -0.005 ? '\u25BC ' : '';
+  return { t: arrow + (ch >= 0 ? '+' : '-') + Math.abs(ch).toFixed(2) + '%', c: cls };
+}
+function cdSet(id, val, chg) {
+  const v = document.querySelector('[data-cd="' + id + '"]');
+  if (v) v.textContent = val;
+  const c = document.querySelector('[data-cdc="' + id + '"]');
+  if (c) { c.className = 's2-chg ' + (chg ? chg.c : 'cd-flat'); c.textContent = chg ? chg.t : '—'; }
+}
+function cdRow(tbodyId, rows) {
+  const tb = document.getElementById(tbodyId);
+  if (!tb) return;
+  tb.innerHTML = '';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    const td1 = document.createElement('td');
+    td1.textContent = r.name;
+    const sub = document.createElement('span');
+    sub.className = 's2-sub';
+    sub.textContent = r.sym;
+    td1.appendChild(sub);
+    const td2 = document.createElement('td');
+    td2.textContent = cdFmtUsd(r.p);
+    const td3 = document.createElement('td');
+    const pc = cdPct(r.ch);
+    td3.textContent = pc.t;
+    td3.className = pc.c;
+    const td4 = document.createElement('td');
+    td4.textContent = cdFmtCap(r.cap);
+    tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3); tr.appendChild(td4);
+    tb.appendChild(tr);
+  });
+}
+function cdRender() {
+  const rows = cdData.rows || [];
+  const by = id => rows.find(r => r.id === id) || {};
+  [['btc', 'bitcoin'], ['eth', 'ethereum'], ['sol', 'solana'], ['xrp', 'ripple']].forEach(([k, id]) => {
+    const r = by(id);
+    cdSet(k, cdFmtUsd(r.p), cdPct(r.ch));
+  });
+  cdSet('mcap', cdFmtCap(cdData.mcap), cdPct(cdData.mcapCh));
+  cdSet('vol', cdFmtCap(cdData.vol), { t: '24h aggregate', c: 'cd-flat' });
+  cdSet('btcdom', typeof cdData.btcdom === 'number' ? cdData.btcdom.toFixed(1) + '%' : '—', { t: 'of total cap', c: 'cd-flat' });
+  const fg = cdData.fng || {};
+  cdSet('fng', fg.v != null ? String(fg.v) : '—', { t: fg.c || '', c: fg.v >= 55 ? 'cd-up' : fg.v <= 44 ? 'cd-down' : 'cd-flat' });
+  cdRow('cdTop', rows.slice(0, 10));
+  cdRow('cdL1', CD_L1_IDS.map(id => by(id)).filter(r => r && r.name));
+  const vol = rows.filter(r => CD_STABLE_IDS.indexOf(r.id) < 0 && typeof r.ch === 'number');
+  cdRow('cdUp', vol.slice().sort((a, b) => b.ch - a.ch).slice(0, 5));
+  cdRow('cdDown', vol.slice().sort((a, b) => a.ch - b.ch).slice(0, 5));
+}
+async function cdRefresh() {
+  if (cdFetching) return;
+  cdFetching = true;
+  try {
+    const r = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&price_change_percentage=24h', { cache: 'no-store' });
+    if (r.ok) {
+      const d = await r.json();
+      if (Array.isArray(d) && d.length) {
+        cdData.rows = d.map(x => ({ id: x.id, sym: (x.symbol || '').toUpperCase(), name: x.name, p: x.current_price, ch: x.price_change_percentage_24h, cap: x.market_cap }));
+      }
+    }
+  } catch (e) {}
+  try {
+    const g = await fetch('https://api.coingecko.com/api/v3/global', { cache: 'no-store' });
+    if (g.ok) {
+      const gd = (await g.json()).data;
+      cdData.mcap = gd.total_market_cap.usd;
+      cdData.vol = gd.total_volume.usd;
+      cdData.btcdom = gd.market_cap_percentage.btc;
+      cdData.mcapCh = gd.market_cap_change_percentage_24h_usd;
+    }
+  } catch (e) {}
+  try {
+    const f = await fetch('https://api.alternative.me/fng/?limit=1', { cache: 'no-store' });
+    if (f.ok) {
+      const x = (await f.json()).data[0];
+      cdData.fng = { v: +x.value, c: x.value_classification };
+    }
+  } catch (e) {}
+  cdRender();
+  cdFetching = false;
+}
+function cdActivate() {
+  cdActive = true;
+  cdRender();
+  cdRefresh();
+  if (!cdTimer) cdTimer = setInterval(() => { if (cdActive) cdRefresh(); }, 60000);
+}
+cdRender();
+cdRefresh();
+
+const TAB_NAME_KEY = 'untitle.tabnames.v1';
+(function loadTabNames() {
+  try {
+    const j = JSON.parse(localStorage.getItem(TAB_NAME_KEY) || 'null');
+    if (j) document.querySelectorAll('.sheet-tab').forEach(t => {
+      const n = j[t.dataset.view];
+      if (n) t.textContent = n;
+    });
+  } catch (e) {}
+})();
+function startTabRename(tab) {
+  if (tab.querySelector('input')) return;
+  const old = tab.textContent.trim();
+  const inp = document.createElement('input');
+  inp.className = 'tab-rename';
+  inp.value = old;
+  inp.maxLength = 24;
+  tab.textContent = '';
+  tab.appendChild(inp);
+  inp.focus();
+  inp.select();
+  const done = commit => {
+    const v = inp.value.trim();
+    const name = (commit && v) ? v : old;
+    tab.textContent = name;
+    try {
+      const j = JSON.parse(localStorage.getItem(TAB_NAME_KEY) || '{}');
+      j[tab.dataset.view] = name;
+      localStorage.setItem(TAB_NAME_KEY, JSON.stringify(j));
+    } catch (e) {}
+  };
+  inp.addEventListener('keydown', e => {
+    e.stopPropagation();
+    if (e.key === 'Enter') { e.preventDefault(); done(true); }
+    else if (e.key === 'Escape') { e.preventDefault(); done(false); }
+  });
+  inp.addEventListener('blur', () => done(true));
+}
+document.querySelectorAll('.sheet-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    if (editingCell) commitEdit();
+    document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const view = tab.dataset.view || 'grid';
+    const is2 = view === 'crypto';
+    const is3 = view === 'markets';
+    s2Active = is3;
+    cdActive = is2;
+    document.getElementById('sheet2View').hidden = !is2;
+    document.getElementById('sheet3View').hidden = !is3;
+    const showGrid = !is2 && !is3;
+    document.getElementById('sheetContainer').style.display = showGrid ? '' : 'none';
+    document.querySelector('.formula-bar').style.display = showGrid ? '' : 'none';
+    if (is2) cdActivate();
+    if (is3) s2Activate();
+  });
+  tab.addEventListener('dblclick', e => {
+    e.preventDefault();
+    startTabRename(tab);
+  });
+});
+
+const APP_BUILD = '2026-09-05.114';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
@@ -5481,6 +6100,12 @@ function showToast(msg) {
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
+    const dashVisible = !document.getElementById('sheet2View').hidden || !document.getElementById('sheet3View').hidden;
+    if (dashVisible && !document.querySelector('.modal-overlay')) {
+      const gridTab = document.querySelector('.sheet-tab[data-view="grid"]');
+      if (gridTab) gridTab.dispatchEvent(new Event('click', { bubbles: true }));
+      return;
+    }
     const now = Date.now();
     const dbl = now - lastEscTime < 600;
     lastEscTime = now;

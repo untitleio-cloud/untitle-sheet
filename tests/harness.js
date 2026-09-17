@@ -181,6 +181,81 @@ function check(name, cond, detail) {
   g("editingCell.editor.value = ''; commitEdit();");
   g("delete cellData['11B']; delete cellData['12B']; delete cellData['13B']; renderGrid();");
 
+  // 3s. Sheet3 markets dashboard tab (moved from Sheet2)
+  const tabs2 = document.querySelectorAll('.sheet-tab');
+  tabs2[2].dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  check('Sheet3: 마켓 대시보드 표시', !document.getElementById('sheet3View').hidden && document.getElementById('sheetContainer').style.display === 'none');
+  check('Sheet3: 카드 8/표 4', document.querySelectorAll('#sheet3View .s2-item').length === 8 && document.querySelectorAll('#sheet3View .s2-tbl').length === 4,
+    String(document.querySelectorAll('#sheet3View .s2-item').length) + '/' + String(document.querySelectorAll('#sheet3View .s2-tbl').length));
+  const s2tbls = document.querySelectorAll('#sheet3View .s2-tbl');
+  check('Sheet3: 미 국채 4행/USD 금리 5행', s2tbls[0].querySelectorAll('tbody tr').length === 4 && s2tbls[1].querySelectorAll('tbody tr').length === 5);
+  check('Sheet3: 프록시 훅(fed 3종)', document.querySelectorAll('#sheet3View [data-s2r]').length === 1 && document.querySelectorAll('#sheet3View [data-s2rc]').length === 1 && document.querySelectorAll('#sheet3View [data-s2d]').length === 1);
+  g("s2Data.us10y={p:5.1,prev:5.0};s2Data.us5y={p:4.8,prev:4.9};s2Render();");
+  check('Sheet3: 상승빨강/하락파랑 클래스', !!document.querySelector('#sheet3View [data-s2c="us10y"].s2-up') && !!document.querySelector('#sheet3View [data-s2c="us5y"].s2-down'));
+  tabs2[0].dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  check('Sheet3: Sheet1 복귀', document.getElementById('sheet3View').hidden && document.getElementById('sheetContainer').style.display === '');
+
+  // 3t. Sheet2 crypto dashboard tab
+  tabs2[1].dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  check('Sheet2: 코인 대시보드 표시', !document.getElementById('sheet2View').hidden && document.getElementById('sheetContainer').style.display === 'none');
+  check('Sheet2: 카드 8/표 4', document.querySelectorAll('#sheet2View .s2-item').length === 8 && document.querySelectorAll('#sheet2View .s2-tbl').length === 4);
+  check('Sheet2: Top10 10행/L1 8행/상승5/하락5', document.querySelectorAll('#cdTop tr').length === 10 && document.querySelectorAll('#cdL1 tr').length === 8 && document.querySelectorAll('#cdUp tr').length === 5 && document.querySelectorAll('#cdDown tr').length === 5);
+  check('Sheet2: 상승초록/하락빨강 클래스', !!document.querySelector('#cdUp td.cd-up') && !!document.querySelector('#cdDown td.cd-down'));
+  tabs2[0].dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  check('Sheet2: Sheet1 복귀', document.getElementById('sheet2View').hidden && document.getElementById('sheetContainer').style.display === '');
+
+  // 3u. sheet tab rename
+  tabs2[2].dispatchEvent(new window.MouseEvent('dblclick', { bubbles: true, cancelable: true }));
+  const rin = tabs2[2].querySelector('input.tab-rename');
+  check('탭 이름: dblclick 시 입력창 열림', !!rin);
+  if (rin) {
+    rin.value = 'Markets';
+    rin.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+  }
+  check('탭 이름: Enter 커밋', tabs2[2].textContent.trim() === 'Markets');
+  tabs2[2].dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  check('탭 이름:改名 후에도 마켓 뷰 연결', !document.getElementById('sheet3View').hidden && document.getElementById('sheetContainer').style.display === 'none');
+  tabs2[2].dispatchEvent(new window.MouseEvent('dblclick', { bubbles: true, cancelable: true }));
+  const rin2 = tabs2[2].querySelector('input.tab-rename');
+  if (rin2) {
+    rin2.value = '   ';
+    rin2.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  }
+  check('탭 이름: 빈 값/Escape 시 원복', tabs2[2].textContent.trim() === 'Markets');
+  tabs2[2].dispatchEvent(new window.MouseEvent('dblclick', { bubbles: true, cancelable: true }));
+  const rin3 = tabs2[2].querySelector('input.tab-rename');
+  if (rin3) {
+    rin3.value = 'Sheet3';
+    rin3.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+  }
+  check('탭 이름: 원복 완료', tabs2[2].textContent.trim() === 'Sheet3');
+  tabs2[0].dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+
+  // 3v. crypto dashboard unit tests (helpers + render with synthetic data)
+  g("var __cdSave = cdData;");
+  g("cdData = { rows: [{id:'bitcoin',sym:'BTC',name:'Bitcoin',p:76382,ch:0.88,cap:1.51e12},{id:'tether',sym:'USDT',name:'Tether',p:1,ch:99,cap:1.8e11},{id:'ethereum',sym:'ETH',name:'Ethereum',p:2441,ch:1.9,cap:3e11},{id:'solana',sym:'SOL',name:'Solana',p:99.78,ch:3,cap:5.8e10},{id:'aptos',sym:'APT',name:'Aptos',p:9.34,ch:6.2,cap:5.4e9},{id:'cardano',sym:'ADA',name:'Cardano',p:0.842,ch:-3.1,cap:2.9e10},{id:'xrp2',sym:'XRP',name:'XRP',p:1.3,ch:0.2,cap:8e10}], mcap:2.63e12, mcapCh:-1.61, vol:9.3e10, btcdom:58.3, fng:{v:50,c:'Neutral'} }; cdRender();");
+  check('코인: USD 포맷', g("cdFmtUsd(76382)") === '$76,382' && g("cdFmtUsd(1.62)") === '$1.62' && g("cdFmtUsd(0.284)") === '$0.2840' && g("cdFmtUsd(null)") === '—' && g("cdFmtUsd(NaN)") === '—',
+    g("cdFmtUsd(76382)+'|'+cdFmtUsd(0.284)"));
+  check('코인: 시총 포맷', g("cdFmtCap(2.63e12)") === '$2.63T' && g("cdFmtCap(9.3e10)") === '$93.0B' && g("cdFmtCap(5e6)") === '$5.0M' && g("cdFmtCap(null)") === '—',
+    g("cdFmtCap(9.3e10)"));
+  check('코인: 등락 포맷', g("cdPct(0.88).t") === '\u25B2 +0.88%' && g("cdPct(0.88).c") === 'cd-up' && g("cdPct(-1.2).c") === 'cd-down' && g("cdPct(0).c") === 'cd-flat' && g("cdPct(null).t") === '—',
+    g("cdPct(0.88).t"));
+  check('코인: 카드 값 반영', document.querySelector('[data-cd="btc"]').textContent === '$76,382' && document.querySelector('[data-cdc="mcap"]').textContent.includes('-1.61%') && document.querySelector('[data-cd="btcdom"]').textContent === '58.3%');
+  check('코인: 스테이블코인 랭커 제외', !document.querySelector('#cdUp').textContent.includes('USDT'));
+  check('코인: Top10 행 수 = 데이터 수', document.querySelectorAll('#cdTop tr').length === 7);
+  g("cdData = __cdSave; cdRender();");
+
+  // 3w. USD spreads unit tests
+  g("s2Data.us10y={p:5.0,prev:4.9};s2Data.us13w={p:4.0,prev:4.0};s2Data.us5y={p:4.5,prev:4.6};s2Data.us30y={p:5.5,prev:5.4};");
+  check('스프레드: 10Y-3M/10Y-FF 계산', g("Math.round(s2Derived().sp103m.p*100)") === 100 && g("Math.round(s2Derived().sp103m.prev*100)") === 90 && g("String(s2Derived().sp10f.p)") === '1.25',
+    g("s2Derived().sp103m.prev"));
+  g("s2Data.us30y={p:5.5,prev:5.5};s2Data.us10y={p:5.0,prev:5.0};s2Render();");
+  check('스프레드: 0 가드(0.0000 회색)', document.querySelector('[data-s2c="sp3010"]').className.includes('s2-flat') && document.querySelector('[data-s2c="sp3010"]').textContent === '0.0000',
+    document.querySelector('[data-s2c="sp3010"]').textContent);
+
+  // 3x. build stamp
+  check('빌드 번호 일치', g("APP_BUILD") === '2026-09-05.114', g("APP_BUILD"));
+
   // 4. plain number format resets $/%/,
   g("cellData['3C'] = '$1,234.50'; cellData['3D'] = '12.34%'; cellData['3E'] = '1,234,567'; renderGrid();");
   window.setSelection(3, 2, false);
