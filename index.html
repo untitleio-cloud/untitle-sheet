@@ -3429,6 +3429,36 @@ async function runSelfTest() {
   renderGrid();
   if (snap.sel) selectCell(snap.sel.row, snap.sel.col);
 
+  T('reset everything clears merges', () => {
+    const keys = ['sheetData', 'rowAssets', 'sheetLayout', 'docTitle', 'lastPrices', 'dataSource', 'untitle.tabnames.v1'];
+    const snapLS = {};
+    keys.forEach(k => { snapLS[k] = localStorage.getItem(k); });
+    const snapData = JSON.stringify(cellData);
+    const snapStyles = JSON.stringify(cellStyles);
+    const snapAssets = JSON.stringify(rowAssets);
+    const snapTitle = docTitle.textContent;
+    setSelection(20, 0, false);
+    setSelection(20, 1, true);
+    mergeCells();
+    ok('merged before reset', !!merges['20:0']);
+    const cf = window.confirm;
+    window.confirm = () => true;
+    resetEverything();
+    window.confirm = cf;
+    ok('merges cleared in memory', Object.keys(merges).length === 0);
+    const lay = JSON.parse(localStorage.getItem('sheetLayout') || '{}');
+    ok('merges cleared in storage', !lay.merges || Object.keys(lay.merges).length === 0);
+    const tabs = document.querySelectorAll('.sheet-tab');
+    ok('tab names restored', tabs[0].textContent.trim() === 'Sheet1' && tabs[1].textContent.trim() === 'Sheet2' && tabs[2].textContent.trim() === 'Sheet3');
+    ok('default data restored', !!get(1, 0));
+    keys.forEach(k => { if (snapLS[k] === null) localStorage.removeItem(k); else localStorage.setItem(k, snapLS[k]); });
+    cellData = JSON.parse(snapData);
+    cellStyles = JSON.parse(snapStyles);
+    rowAssets = JSON.parse(snapAssets);
+    docTitle.textContent = snapTitle;
+    renderGrid();
+  });
+
   const passed = out.filter(r => r[1] === 'PASS').length;
   window.__selfTestResults = out;
   const overlay = document.createElement('div');
@@ -4897,25 +4927,30 @@ function resetTextFormatting() {
 }
 
 function resetEverything() {
-  if (!confirm('Delete ALL data and restore the default sheet?\n\nBindings, text, formatting, column/row sizes, the document title and your settings (price source, API keys) are erased. This cannot be undone.')) return;
+  if (!confirm('Delete ALL data and restore the default sheet?\n\nBindings, merged cells, text, formatting, column/row sizes, tab names, the document title and your settings (price source, API keys) are erased. This cannot be undone.')) return;
   localStorage.removeItem('sheetData');
   localStorage.removeItem('rowAssets');
   localStorage.removeItem('sheetLayout');
   localStorage.removeItem('docTitle');
   localStorage.removeItem('lastPrices');
   localStorage.removeItem('dataSource');
+  localStorage.removeItem('untitle.tabnames.v1');
   docTitle.textContent = 'Untitled spreadsheet';
   document.title = 'Untitled spreadsheet';
   undoStack = [];
   redoStack = [];
   colWidths = {};
   rowHeights = {};
+  merges = {};
   colMap = { code: 0, name: 1, price: 2, change: 3, inv: 4, budget: 5, status: 6 };
   selectedCell = null;
   selRange = null;
   selAnchor = null;
+  const tabDefaults = { grid: 'Sheet1', crypto: 'Sheet2', markets: 'Sheet3' };
+  document.querySelectorAll('.sheet-tab').forEach(t => { t.textContent = tabDefaults[t.dataset.view] || 'Sheet'; });
   initRowAssets();
   initCellData();
+  renderGrid();
   saveRowAssets();
   saveLayout();
   updateHistoryButtons();
@@ -4998,14 +5033,11 @@ const s2Data = {};
 let s2Active = false, s2Timer = null, s2Fetching = false;
 const S2_PROXY = '';
 function s2Base() {
-  if (S2_PROXY) return S2_PROXY.replace(/\/+$/, '') + '/quote/';
-  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return '/quote/';
-  return 'https://query1.finance.yahoo.com/v8/finance/chart/';
+  return (S2_PROXY ? S2_PROXY.replace(/\/+$/, '') : '') + '/quote/';
 }
 async function s2ProxyRefresh() {
-  if (!S2_PROXY) return;
   try {
-    const r = await fetch(S2_PROXY.replace(/\/+$/, '') + '/api/indicators');
+    const r = await fetch((S2_PROXY ? S2_PROXY.replace(/\/+$/, '') : '') + '/api/indicators');
     if (!r.ok) return;
     const j = await r.json();
     (j.bonds || []).forEach(b => {
@@ -5304,7 +5336,7 @@ document.querySelectorAll('.sheet-tab').forEach(tab => {
   });
 });
 
-const APP_BUILD = '2026-09-05.114';
+const APP_BUILD = '2026-09-05.116';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [

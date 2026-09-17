@@ -254,7 +254,10 @@ function check(name, cond, detail) {
     document.querySelector('[data-s2c="sp3010"]').textContent);
 
   // 3x. build stamp
-  check('빌드 번호 일치', g("APP_BUILD") === '2026-09-05.114', g("APP_BUILD"));
+  check('Sheet3 프록시 same-origin', html.includes("return (S2_PROXY ? S2_PROXY.replace(/\\/+$/, '') : '') + '/quote/';") && !html.includes('query1.finance.yahoo.com'));
+  check('Pages Function quote 존재', fs.existsSync(require('path').join(__dirname, '..', 'functions', 'quote', '[[path]].js')));
+  check('Pages Function indicators 존재', fs.existsSync(require('path').join(__dirname, '..', 'functions', 'api', 'indicators.js')));
+  check('빌드 번호 일치', g("APP_BUILD") === '2026-09-05.116', g("APP_BUILD"));
 
   // 4. plain number format resets $/%/,
   g("cellData['3C'] = '$1,234.50'; cellData['3D'] = '12.34%'; cellData['3E'] = '1,234,567'; renderGrid();");
