@@ -5031,7 +5031,7 @@ const S2_DEC = { dxy: 2, eurusd: 4, usdjpy: 4, gbpusd: 4,
   wti: 2, brent: 2, gold: 2, silver: 2, copper: 4, platinum: 2, palladium: 2, rbob: 4, ho: 4, ng: 4, us10y: 4, us13w: 4, us5y: 4, us30y: 4, sp10f: 4, sp103m: 4, sp105: 4, sp3010: 4 };
 const s2Data = {};
 let s2Active = false, s2Timer = null, s2Fetching = false;
-const S2_PROXY = '';
+const S2_PROXY = 'https://api.untitle.io';
 function s2Base() {
   return (S2_PROXY ? S2_PROXY.replace(/\/+$/, '') : '') + '/quote/';
 }
@@ -5336,7 +5336,7 @@ document.querySelectorAll('.sheet-tab').forEach(tab => {
   });
 });
 
-const APP_BUILD = '2026-09-05.116';
+const APP_BUILD = '2026-09-05.117';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
