@@ -52,10 +52,33 @@ function rateLimited(key, max) {
   return b.n > max;
 }
 
+const ALLOWED_ORIGINS = ['https://untitle.io', 'https://www.untitle.io', 'http://localhost:8123', 'http://127.0.0.1:8123'];
+
 async function blocked(request, env) {
   const ua = request.headers.get('User-Agent') || '';
   if (!ua || BOT_RE.test(ua)) {
     return new Response('{"error":"forbidden"}', { status: 403, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
+  }
+  const origin = request.headers.get('Origin') || '';
+  const referer = request.headers.get('Referer') || '';
+  const fromSite = ALLOWED_ORIGINS.includes(origin) || ALLOWED_ORIGINS.some(o => referer.startsWith(o + '/'));
+  if (origin && !fromSite) {
+    return new Response('{"error":"forbidden origin"}', { status: 403, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
+  }
+  if (!fromSite) {
+    const key = clientKey(request);
+    const strictKey = 'strict:' + key;
+    let denied = false;
+    if (env.GUARD) {
+      try {
+        const stub = env.GUARD.get(env.GUARD.idFromName('global'));
+        const gr = await stub.fetch('https://guard/check?k=' + encodeURIComponent(strictKey) + '&b=0&m=10');
+        denied = !!(await gr.json()).over;
+      } catch (e) {}
+    }
+    if (denied) {
+      return new Response('{"error":"forbidden"}', { status: 403, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
+    }
   }
   const key = clientKey(request);
   const path = new URL(request.url).pathname;
@@ -138,6 +161,8 @@ export class Guard {
     if (url.pathname !== '/check') return new Response('guard');
     const key = url.searchParams.get('k') || 'anon';
     const burst = url.searchParams.get('b') === '1';
+    const maxParam = parseInt(url.searchParams.get('m') || '', 10);
+    const max = isFinite(maxParam) && maxParam > 0 ? maxParam : (burst ? RATE_MAX_BURST : RATE_MAX);
     const now = Date.now();
     if (!this.map) this.map = new Map();
     if (this.map.size > 3000) {
@@ -146,7 +171,7 @@ export class Guard {
     let b = this.map.get(key);
     if (!b || now - b.t0 > 60000) { b = { t0: now, n: 0 }; this.map.set(key, b); }
     b.n++;
-    const over = b.n > (burst ? RATE_MAX_BURST : RATE_MAX);
+    const over = b.n > max;
     return new Response(JSON.stringify({ n: b.n, over }), { headers: { 'Content-Type': 'application/json' } });
   }
 }
