@@ -53,11 +53,15 @@ function rateLimited(key, max) {
 }
 
 const ALLOWED_ORIGINS = ['https://untitle.io', 'https://www.untitle.io', 'http://localhost:8123', 'http://127.0.0.1:8123'];
+function corsFor(request) {
+  const o = request.headers.get('Origin') || '';
+  return ALLOWED_ORIGINS.includes(o) ? { 'Access-Control-Allow-Origin': o, 'Vary': 'Origin' } : {};
+}
 
 async function blocked(request, env) {
   const ua = request.headers.get('User-Agent') || '';
   if (!ua || BOT_RE.test(ua)) {
-    return new Response('{"error":"forbidden"}', { status: 403, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
+    return new Response('{"error":"forbidden"}', { status: 403, headers: Object.assign(corsFor(request), { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }) });
   }
   const origin = request.headers.get('Origin') || '';
   const referer = request.headers.get('Referer') || '';
@@ -99,7 +103,7 @@ async function blocked(request, env) {
       lastWarn.set(key, now);
       try { fetch('https://untitle.io/api/abuse', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key, ua, path }) }).catch(() => {}); } catch (e) {}
     }
-    return new Response('{"error":"rate limited"}', { status: 429, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'Retry-After': '60' } });
+    return new Response('{"error":"rate limited"}', { status: 429, headers: Object.assign(corsFor(request), { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'Retry-After': '60' }) });
   }
   return null;
 }
@@ -125,13 +129,13 @@ export default {
       try {
         const up = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(sym) + '?range=2d&interval=1d', { headers: { 'User-Agent': 'Mozilla/5.0' } });
         const body = await up.text();
-        return new Response(body, { status: up.status, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' } });
+        return new Response(body, { status: up.status, headers: Object.assign(corsFor(request), { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' }) });
       } catch (e) {
-        return new Response('{"error":"upstream"}', { status: 502, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' } });
+        return new Response('{"error":"upstream"}', { status: 502, headers: Object.assign(corsFor(request), { 'Content-Type': 'application/json' }) });
       }
     }
     if (url.pathname !== '/api/indicators') {
-      return new Response('untitle.io indicator proxy', { headers: { 'Access-Control-Allow-Origin': '*' } });
+      return new Response('untitle.io indicator proxy', { headers: corsFor(request) });
     }
     const now = Date.now();
     if (!cache.body || now - cache.t > 10 * 60 * 1000) {
@@ -142,11 +146,10 @@ export default {
       cache = { t: now, body: JSON.stringify(body) };
     }
     return new Response(cache.body, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
+      headers: Object.assign(corsFor(request), {
         'Content-Type': 'application/json; charset=utf-8',
         'Cache-Control': 'public, max-age=600'
-      }
+      })
     });
   }
 };
