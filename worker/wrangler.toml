@@ -1,0 +1,11 @@
+name = "untitle-finance"
+main = "finance-proxy.js"
+compatibility_date = "2025-06-01"
+
+[[durable_objects.bindings]]
+name = "GUARD"
+class_name = "Guard"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Guard"]

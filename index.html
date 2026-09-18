@@ -165,23 +165,35 @@ body {
 .md-item:hover { background: #f1f3f4; }
 .md-item.danger { color: #c5221f; }
 .md-sep { height: 1px; background: #e8eaed; margin: 5px 0; }
-.modal.hg-modal { width: min(680px, 92vw); padding: 26px 30px; }
+.modal.hg-modal { width: min(720px, 94vw); padding: 26px 30px; }
 .hg-head { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
 .hg-head h2 { flex: none; }
 .hg-head .hg-tag { margin-left: auto; }
 .m-btnrow { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; }
 .hg-head h2 { margin: 0; }
 .hg-head .hg-tag { font-size: 11px; color: #5f6368; background: #f1f3f4; border-radius: 10px; padding: 2px 8px; }
-.hg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 32px; }
-.hg-tip { margin: 22px 0 0; padding: 11px 14px; background: #e8f0fe; border-left: 3px solid #0b57d0; border-radius: 4px; font-size: 13px; color: #1a3d6e; }
+.hg-body { display: flex; gap: 26px; min-height: 300px; }
+.hg-nav { display: flex; flex-direction: column; gap: 2px; flex: none; width: 176px; border-right: 1px solid #e8eaed; padding-right: 8px; }
+.hg-nav button { display: flex; align-items: center; gap: 9px; text-align: left; font: inherit; font-size: 13px; color: #3c4043; background: none; border: 0; border-radius: 6px; padding: 9px 10px; cursor: pointer; }
+.hg-nav button svg { width: 15px; height: 15px; stroke: #5f6368; flex: none; }
+.hg-nav button:hover { background: #f1f3f4; }
+.hg-nav button.on { background: #e8f0fe; color: #0b57d0; font-weight: 500; }
+.hg-nav button.on svg { stroke: #0b57d0; }
+.hg-pane { flex: 1; padding: 2px 2px 0; }
+.hg-pane h3 { margin: 0 0 4px; font-size: 15px; font-weight: 500; color: #202124; }
+.hg-pane .hg-sub { margin: 0 0 14px; font-size: 12.5px; color: #5f6368; }
+.hg-pane ul { list-style: none; margin: 0; padding: 0; }
+.hg-pane li { padding: 7px 0; font-size: 13px; line-height: 1.65; color: #202124; border-bottom: 1px solid #f1f3f4; }
+.hg-pane li:last-child { border-bottom: 0; }
+.hg-pane kbd { font-family: inherit; font-size: 11px; background: #f1f3f4; border: 1px solid #dadce0; border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; white-space: nowrap; }
+.hg-tip { margin: 18px 0 0; padding: 11px 14px; background: #e8f0fe; border-left: 3px solid #0b57d0; border-radius: 4px; font-size: 13px; color: #1a3d6e; }
 .hg-tip kbd { font-family: inherit; font-size: 11px; background: #fff; border: 1px solid #b3cdf7; border-bottom-width: 2px; border-radius: 4px; padding: 1px 6px; }
-.hg-sec h3 { margin: 0 0 10px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .7px; color: #0b57d0; display: flex; align-items: center; gap: 6px; }
-.hg-sec h3 svg { width: 14px; height: 14px; stroke: #0b57d0; }
-.hg-sec ul { list-style: none; margin: 0; padding: 0; }
-.hg-sec li { padding: 5px 0; font-size: 13px; line-height: 1.6; color: #202124; }
-.hg-sec li .d { color: #5f6368; }
-.hg-sec kbd { font-family: inherit; font-size: 11px; background: #f1f3f4; border: 1px solid #dadce0; border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; white-space: nowrap; }
-@media (max-width: 640px) { .hg-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) {
+  .hg-body { flex-direction: column; gap: 12px; min-height: 0; }
+  .hg-nav { width: auto; flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid #e8eaed; padding: 0 0 6px; }
+  .hg-nav button { flex: none; padding: 7px 10px; }
+  .hg-nav button span { white-space: nowrap; }
+}
 
 .modal-overlay {
   position: fixed;
@@ -873,6 +885,8 @@ body {
 }
 .s2-tag { font-size: 10.5px; color: #9aa0a6; font-weight: 400; }
 .s2-tag.live { color: #188038; }
+.s2-tag.stale { color: #b06000; }
+.s2-tag.stale::before { background: #f9ab00 !important; }
 .s2-tag.live::before, .s2-tbl .s2-tag.live::before {
   content: '';
   display: inline-block;
@@ -885,8 +899,8 @@ body {
 }
 .s2-val { font-size: 19px; font-weight: 700; margin-top: 5px; letter-spacing: -0.2px; }
 .s2-chg { font-size: 12px; font-weight: 600; margin-top: 2px; }
-.s2-up { color: #d93025; }
-.s2-down { color: #1a73e8; }
+.s2-up { color: #188038; }
+.s2-down { color: #d93025; }
 .s2-flat { color: #80868b; }
 .s2-tables {
   display: grid;
@@ -940,6 +954,13 @@ body {
 .cg-credit { margin-left: auto; padding-right: 10px; font-size: 10.5px; color: var(--text-disabled); }
 .cg-credit a { color: inherit; text-decoration: none; }
 .cg-credit a:hover { text-decoration: underline; }
+.feed-status { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; padding-right: 10px; font-size: 10.5px; color: #5f6368; white-space: nowrap; }
+.feed-status + .cg-credit { margin-left: 0; }
+.feed-dot { width: 7px; height: 7px; border-radius: 50%; background: #9aa0a6; flex: none; }
+.feed-status.ws .feed-dot { background: #188038; animation: feedPulse 1.6s ease-in-out infinite; }
+.feed-status.rest .feed-dot { background: #188038; }
+.feed-status.cached .feed-dot { background: #f9ab00; }
+@keyframes feedPulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
 
 /* Autocomplete panel */
 .ac-panel {
@@ -1169,7 +1190,7 @@ body {
 <div id="sheet2View" hidden>
   <div class="s2-head">
     <div class="s2-title">Crypto Dashboard</div>
-    <div class="s2-subtitle">Live prices, market cap &amp; sentiment · auto-refresh every 60s</div>
+    <div class="s2-subtitle">Live prices, market cap &amp; sentiment · auto-refresh every 60s · <span id="cdUpdated">—</span></div>
   </div>
   <div class="s2-cards">
     <div class="s2-card"><div class="s2-grid2">
@@ -1223,7 +1244,7 @@ body {
 <div id="sheet3View" hidden>
   <div class="s2-head">
     <div class="s2-title">Markets Dashboard</div>
-    <div class="s2-subtitle">Live rates, commodities &amp; USD indicators · auto-refresh every 60s</div>
+    <div class="s2-subtitle">Live rates, commodities &amp; USD indicators · auto-refresh every 60s · <span id="s2Updated">—</span></div>
   </div>
   <div class="s2-cards">
     <div class="s2-card"><div class="s2-grid2">
@@ -1308,6 +1329,7 @@ body {
   <div class="sheet-tab" data-view="crypto">Sheet2</div>
   <div class="sheet-tab" data-view="markets">Sheet3</div>
   <span class="cg-credit" id="cgCredit" hidden>Prices by <a href="https://www.coingecko.com" target="_blank" rel="noopener">CoinGecko</a></span>
+  <span class="feed-status" id="feedStatus" hidden><span class="feed-dot"></span><span id="feedText">Idle</span></span>
 </div>
 
 <!-- Autocomplete panel -->
@@ -1371,16 +1393,25 @@ const POPULAR_US = [
 ];
 
 let prices = {};
+let pricesGen = 0;
 let cellData = {};
 let cellStyles = {};
 let rowAssets = {};
+const corruptKeys = [];
+function backupCorrupt(key) {
+  corruptKeys.push(key);
+  try {
+    localStorage.setItem(key + '.corrupt', localStorage.getItem(key));
+    localStorage.removeItem(key);
+  } catch (e) {}
+}
 
 // ===== ROW -> TICKER BINDING =====
 function initRowAssets() {
   rowAssets = {};
   const saved = localStorage.getItem('rowAssets');
   if (saved) {
-    try { rowAssets = JSON.parse(saved); } catch(e) { rowAssets = {}; }
+    try { rowAssets = JSON.parse(saved); } catch(e) { rowAssets = {}; backupCorrupt('rowAssets'); }
   } else {
     DEFAULT_ROWS.forEach((a, i) => { rowAssets[i + 1] = { ...a }; });
   }
@@ -1449,22 +1480,24 @@ let dragSelecting = false;
 let clipboard = null;
 
 // ===== HISTORY (UNDO/REDO) =====
-function pushHistory() {
-  undoStack.push(JSON.stringify({ data: cellData, styles: cellStyles, assets: rowAssets, heights: rowHeights, cols: colMap, merges }));
+function pushHistory(override) {
+  undoStack.push(JSON.stringify(Object.assign({ data: cellData, styles: cellStyles, assets: rowAssets, heights: rowHeights, cols: colMap, widths: colWidths, merges, tabNames: null }, override)));
   if (undoStack.length > 100) undoStack.shift();
   redoStack = [];
   updateHistoryButtons();
 }
 function undo() {
   if (!undoStack.length) return;
-  redoStack.push(JSON.stringify({ data: cellData, styles: cellStyles, assets: rowAssets, heights: rowHeights, cols: colMap, merges }));
+  redoStack.push(JSON.stringify({ data: cellData, styles: cellStyles, assets: rowAssets, heights: rowHeights, cols: colMap, widths: colWidths, merges, tabNames: JSON.parse(localStorage.getItem(TAB_NAME_KEY) || "{}") }));
   const snap = JSON.parse(undoStack.pop());
   cellData = snap.data;
   cellStyles = snap.styles;
   rowAssets = snap.assets || {};
   rowHeights = snap.heights || {};
   if (snap.cols) colMap = snap.cols;
+  if (snap.widths) colWidths = snap.widths;
   merges = snap.merges || {};
+  if ('tabNames' in snap) setTabNames(snap.tabNames || {});
   saveData();
   saveRowAssets();
   saveLayout();
@@ -1473,14 +1506,16 @@ function undo() {
 }
 function redo() {
   if (!redoStack.length) return;
-  undoStack.push(JSON.stringify({ data: cellData, styles: cellStyles, assets: rowAssets, heights: rowHeights, cols: colMap, merges }));
+  undoStack.push(JSON.stringify({ data: cellData, styles: cellStyles, assets: rowAssets, heights: rowHeights, cols: colMap, widths: colWidths, merges, tabNames: JSON.parse(localStorage.getItem(TAB_NAME_KEY) || "{}") }));
   const snap = JSON.parse(redoStack.pop());
   cellData = snap.data;
   cellStyles = snap.styles;
   rowAssets = snap.assets || {};
   rowHeights = snap.heights || {};
   if (snap.cols) colMap = snap.cols;
+  if (snap.widths) colWidths = snap.widths;
   merges = snap.merges || {};
+  if ('tabNames' in snap) setTabNames(snap.tabNames || {});
   saveData();
   saveRowAssets();
   saveLayout();
@@ -1493,6 +1528,23 @@ function updateHistoryButtons() {
 }
 
 // ===== INIT CELL DATA =====
+function seedDefaultCells() {
+  Object.entries(colMap).forEach(([k, c]) => {
+    if (COL_LABEL_FOR[k] === undefined) return;
+    cellData['0' + COL_HEADERS[c]] = COL_LABEL_FOR[k];
+    cellStyles['0' + COL_HEADERS[c]] = { bold: true, align: 'left' };
+  });
+  Object.entries(rowAssets).forEach(([rs, a]) => {
+    const r = +rs;
+    writeCell(r, 'code', a.code);
+    writeCell(r, 'name', a.name || codenameFor(a.realName, a.code));
+    writeCell(r, 'price', '0.00');
+    writeCell(r, 'change', '+0.00%');
+    writeCell(r, 'inv', String(a.inv));
+    writeCell(r, 'budget', '0.00');
+    writeCell(r, 'status', 'Pending');
+  });
+}
 function initCellData() {
   cellData = {};
   cellStyles = {};
@@ -1503,8 +1555,11 @@ function initCellData() {
       const d = JSON.parse(saved);
       Object.assign(cellData, d.data || {});
       Object.assign(cellStyles, d.styles || {});
-    } catch(e) {}
-    if (localStorage.getItem('colsV6') !== '1') {
+    } catch(e) { backupCorrupt('sheetData'); }
+    if (!Object.keys(cellData).length) {
+      seedDefaultCells();
+      saveData();
+    } else if (localStorage.getItem('colsV6') !== '1') {
       const map = { A: 'A', C: 'B', D: 'C', E: 'D', F: 'E', H: 'F' };
       const remap = src => {
         const out = {};
@@ -1575,21 +1630,7 @@ function initCellData() {
     localStorage.setItem('colsV7', '1');
     localStorage.setItem('labelCodeV8', '1');
     localStorage.setItem('labelPriceV9', '1');
-    Object.entries(colMap).forEach(([k, c]) => {
-      if (COL_LABEL_FOR[k] === undefined) return;
-      cellData['0' + COL_HEADERS[c]] = COL_LABEL_FOR[k];
-      cellStyles['0' + COL_HEADERS[c]] = { bold: true, align: 'left' };
-    });
-    Object.entries(rowAssets).forEach(([rs, a]) => {
-      const r = +rs;
-      writeCell(r, 'code', a.code);
-      writeCell(r, 'name', a.name || codenameFor(a.realName, a.code));
-      writeCell(r, 'price', '0.00');
-      writeCell(r, 'change', '+0.00%');
-      writeCell(r, 'inv', String(a.inv));
-      writeCell(r, 'budget', '0.00');
-      writeCell(r, 'status', 'Pending');
-    });
+    seedDefaultCells();
   }
 }
 
@@ -1804,9 +1845,11 @@ function startColResize(e, col) {
   const startX = e.clientX;
   const startW = colWidths[col] || 140;
   const grid = document.getElementById('grid');
+  let changed = false;
 
   function onMove(ev) {
     const newW = Math.max(60, startW + (ev.clientX - startX));
+    if (newW !== startW) changed = true;
     colWidths[col] = newW;
     const colW = COL_HEADERS.map((_, c) => colWidths[c] || 140);
     grid.style.gridTemplateColumns = `52px ${colW.map(w => w + 'px').join(' ')}`;
@@ -1815,6 +1858,9 @@ function startColResize(e, col) {
     document.removeEventListener('mousemove', onMove);
     document.removeEventListener('mouseup', onUp);
     document.body.classList.remove('resizing-col');
+    if (changed) {
+      pushHistory({ widths: { ...colWidths, [col]: startW } });
+    }
     saveLayout();
   }
   document.body.classList.add('resizing-col');
@@ -1865,7 +1911,7 @@ function loadLayout() {
         });
         if (Object.keys(m).length) colMap = m;
       }
-    } catch(e) {}
+    } catch(e) { backupCorrupt('sheetLayout'); }
   }
 }
 
@@ -2593,6 +2639,10 @@ function deleteRows(r1, r2) {
     const srcH = r + w < ROWS ? rowHeights[r + w] : undefined;
     if (srcH !== undefined) rowHeights[r] = srcH; else delete rowHeights[r];
   }
+  for (let r = ROWS - w; r < ROWS; r++) {
+    delete rowAssets[r];
+    delete rowHeights[r];
+  }
   saveData();
   saveRowAssets();
   saveLayout();
@@ -2664,6 +2714,9 @@ function deleteCols(c1, c2) {
     if (colMap[k] >= c1 && colMap[k] <= c2) delete colMap[k];
     else if (colMap[k] > c2) colMap[k] -= w;
   });
+  for (let c = c1; c < COLS; c++) {
+    if (c + w < COLS && colWidths[c + w] !== undefined) colWidths[c] = colWidths[c + w]; else delete colWidths[c];
+  }
   refreshBudgetFormulas();
   saveData();
   saveLayout();
@@ -3158,6 +3211,7 @@ function commitEdit() {
   editingCell = null;
   renderGrid();
   updateCellName(selectedCell);
+  if (selectedCell) applySelectionHighlight(true);
 }
 
 function cancelEdit() {
@@ -4648,7 +4702,8 @@ async function cgStockId(ticker) {
   const t = ticker.toUpperCase();
   let cache = {};
   try { cache = JSON.parse(localStorage.getItem('cgStockIds') || 'null') || {}; } catch(e) {}
-  if (t in cache) return cache[t];
+  const hit = cache[t];
+  if (hit && (hit.id || Date.now() - (hit.ts || 0) < 24 * 3600 * 1000)) return hit.id;
   try {
     const res = await fetch('https://api.coingecko.com/api/v3/search?query=' + encodeURIComponent(t));
     if (!res.ok) return null;
@@ -4662,7 +4717,7 @@ async function cgStockId(ticker) {
       CG_STOCK_PRIO.forEach((p, i) => { if (score === 99 && id.includes(p)) score = i; });
       if (score < bestScore) { bestScore = score; best = id; }
     });
-    cache[t] = best;
+    cache[t] = { id: best, ts: Date.now() };
     localStorage.setItem('cgStockIds', JSON.stringify(cache));
     return best;
   } catch(e) { return null; }
@@ -4752,7 +4807,7 @@ async function fetchCoinGeckoBatch(entries) {
 }
 
 async function fetchPrices() {
-  prices = {};
+  const gen = ++pricesGen;
   let ok = false;
   const assets = Object.values(rowAssets);
 
@@ -4770,11 +4825,14 @@ async function fetchPrices() {
       if (!id && a.type === 'stock') id = await cgStockId(a.ticker);
       if (id) entries.push({ ticker: a.ticker, id });
     }
-    return fetchCoinGeckoBatch(entries);
+    const cgOk = await fetchCoinGeckoBatch(entries);
+    if (gen !== pricesGen) return false;
+    return cgOk;
   }
 
   const tickers = [...new Set(assets.filter(eligible).map(a => a.ticker))];
   for (let i = 0; i < tickers.length; i++) {
+    if (gen !== pricesGen) return false;
     if (await fetchTicker(tickers[i], typeOf[tickers[i]])) ok = true;
     if (i < tickers.length - 1) await new Promise(r => setTimeout(r, 150));
   }
@@ -4891,7 +4949,9 @@ function updateMarketData(recordHistory) {
     const r = +rs;
     const p = prices[a.ticker];
     if (!p) {
-      writeCell(r, 'price', 'No Data');
+      const invL = colL('inv');
+      const invV = invL ? cellData[r + invL] : null;
+      writeCell(r, 'price', invV === null || invV === undefined || invV === '' ? 'No Data' : '—');
       writeCell(r, 'status', 'Pending');
       return;
     }
@@ -4935,6 +4995,15 @@ function resetEverything() {
   localStorage.removeItem('lastPrices');
   localStorage.removeItem('dataSource');
   localStorage.removeItem('untitle.tabnames.v1');
+  localStorage.removeItem('untitle.view.v1');
+  localStorage.removeItem(S2_CACHE_KEY);
+  localStorage.removeItem('sheetData.corrupt');
+  localStorage.removeItem('rowAssets.corrupt');
+  localStorage.removeItem('sheetLayout.corrupt');
+  localStorage.removeItem('lastPrices.corrupt');
+  localStorage.removeItem('cgStockIds');
+  localStorage.removeItem('catalogCache');
+  localStorage.removeItem('liveMode');
   docTitle.textContent = 'Untitled spreadsheet';
   document.title = 'Untitled spreadsheet';
   undoStack = [];
@@ -5030,7 +5099,7 @@ const S2_SYMS = {
 const S2_DEC = { dxy: 2, eurusd: 4, usdjpy: 4, gbpusd: 4,
   wti: 2, brent: 2, gold: 2, silver: 2, copper: 4, platinum: 2, palladium: 2, rbob: 4, ho: 4, ng: 4, us10y: 4, us13w: 4, us5y: 4, us30y: 4, sp10f: 4, sp103m: 4, sp105: 4, sp3010: 4 };
 const s2Data = {};
-let s2Active = false, s2Timer = null, s2Fetching = false;
+let s2Active = false, s2Timer = null, s2Fetching = false, s2Gen = 0;
 const S2_PROXY = 'https://api.untitle.io';
 function s2Base() {
   return (S2_PROXY ? S2_PROXY.replace(/\/+$/, '') : '') + '/quote/';
@@ -5052,6 +5121,10 @@ async function s2ProxyRefresh() {
       const v = document.querySelector('[data-s2r="' + x.id + '"]'); if (v) v.textContent = x.v;
       const c = document.querySelector('[data-s2rc="' + x.id + '"]'); if (c) { c.className = x.cls; c.textContent = x.chg; }
       const d = document.querySelector('[data-s2d="' + x.id + '"]'); if (d) d.textContent = x.d;
+      if (x.id === 'fed') {
+        const top = parseFloat(x.v);
+        if (isFinite(top)) FED_FUNDS_TOP = top;
+      }
     });
   } catch (e) {}
 }
@@ -5061,7 +5134,7 @@ function s2Fmt(id, v) {
   if (d === undefined) d = 2;
   return v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
 }
-const FED_FUNDS_TOP = 3.75;
+let FED_FUNDS_TOP = 3.75;
 function s2Derived() {
   const out = {};
   Object.keys(s2Data).forEach(k => { out[k] = s2Data[k]; });
@@ -5098,6 +5171,11 @@ function s2Render() {
   });
 }
 const S2_CACHE_KEY = 'untitle.s2.v1';
+const STALE_MS = 10 * 60 * 1000;
+let s2LastOk = 0, cdLastOk = 0;
+function fmtHM(ts) {
+  return new Date(ts).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+}
 function s2SaveCache() {
   try { localStorage.setItem(S2_CACHE_KEY, JSON.stringify({ ts: Date.now(), data: s2Data })); } catch (e) {}
 }
@@ -5106,24 +5184,42 @@ function s2LoadCache() {
     const j = JSON.parse(localStorage.getItem(S2_CACHE_KEY) || 'null');
     if (!j || !j.data) return;
     Object.keys(j.data).forEach(k => { if (!s2Data[k]) s2Data[k] = j.data[k]; });
+    if (j.ts && !s2LastOk) s2LastOk = j.ts;
   } catch (e) {}
+}
+function s2StaleTick() {
+  const stale = !s2LastOk || Date.now() - s2LastOk > STALE_MS;
+  document.querySelectorAll('#sheet3View .s2-tag.live').forEach(t => {
+    t.classList.toggle('stale', stale);
+    t.textContent = stale ? (s2LastOk ? 'Stale' : 'Offline') : 'Live';
+  });
+  const up = document.getElementById('s2Updated');
+  if (up) up.textContent = s2LastOk ? 'Updated ' + fmtHM(s2LastOk) : 'No data yet';
 }
 async function s2Refresh() {
   if (s2Fetching) return;
   s2Fetching = true;
+  const gen = ++s2Gen;
+  let okCount = 0;
   await Promise.all(Object.keys(S2_SYMS).map(async id => {
     try {
       const r = await fetch(s2Base() + encodeURIComponent(S2_SYMS[id]));
       if (!r.ok) throw new Error('http');
       const j = await r.json();
+      if (gen !== s2Gen) return;
       const m = j.chart.result[0].meta;
       s2Data[id] = { p: m.regularMarketPrice || null, prev: m.chartPreviousClose || m.previousClose || m.regularMarketPrice || null };
+      okCount++;
     } catch (e) {
       if (!s2Data[id]) s2Data[id] = { p: null, prev: null };
     }
     s2Render();
     s2SaveCache();
   }));
+  if (gen !== s2Gen) return;
+  if (okCount) s2LastOk = Date.now();
+  s2SaveCache();
+  s2StaleTick();
   s2Fetching = false;
 }
 function s2Activate() {
@@ -5134,13 +5230,14 @@ function s2Activate() {
 }
 s2LoadCache();
 s2Render();
+s2StaleTick();
 s2Refresh();
 s2ProxyRefresh();
 
 // ===== Sheet2: Crypto Dashboard (CoinGecko + alternative.me, CORS-friendly) =====
 const CD_L1_IDS = ['ethereum', 'solana', 'cardano', 'avalanche-2', 'polkadot', 'near', 'aptos', 'tron'];
 const CD_STABLE_IDS = ['tether', 'usd-coin', 'dai', 'usds', 'first-digital-usd'];
-let cdActive = false, cdTimer = null, cdFetching = false;
+let cdActive = false, cdTimer = null, cdFetching = false, cdGen = 0;
 let cdData = {
   rows: [
     { id: 'bitcoin', sym: 'BTC', name: 'Bitcoin', p: 76382, ch: 0.88, cap: 1.51e12 },
@@ -5233,20 +5330,34 @@ function cdRender() {
   cdRow('cdUp', vol.slice().sort((a, b) => b.ch - a.ch).slice(0, 5));
   cdRow('cdDown', vol.slice().sort((a, b) => a.ch - b.ch).slice(0, 5));
 }
+function cdStaleTick() {
+  const stale = !cdLastOk || Date.now() - cdLastOk > STALE_MS;
+  document.querySelectorAll('#sheet2View .s2-tag.live').forEach(t => {
+    t.classList.toggle('stale', stale);
+    t.textContent = stale ? (cdLastOk ? 'Stale' : 'Offline') : 'Live';
+  });
+  const up = document.getElementById('cdUpdated');
+  if (up) up.textContent = cdLastOk ? 'Updated ' + fmtHM(cdLastOk) : 'Seeded sample';
+}
 async function cdRefresh() {
   if (cdFetching) return;
   cdFetching = true;
+  const gen = ++cdGen;
+  let ok = false;
   try {
     const r = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&price_change_percentage=24h', { cache: 'no-store' });
+    if (gen !== cdGen) return;
     if (r.ok) {
       const d = await r.json();
       if (Array.isArray(d) && d.length) {
         cdData.rows = d.map(x => ({ id: x.id, sym: (x.symbol || '').toUpperCase(), name: x.name, p: x.current_price, ch: x.price_change_percentage_24h, cap: x.market_cap }));
+        ok = true;
       }
     }
   } catch (e) {}
   try {
     const g = await fetch('https://api.coingecko.com/api/v3/global', { cache: 'no-store' });
+    if (gen !== cdGen) return;
     if (g.ok) {
       const gd = (await g.json()).data;
       cdData.mcap = gd.total_market_cap.usd;
@@ -5257,12 +5368,16 @@ async function cdRefresh() {
   } catch (e) {}
   try {
     const f = await fetch('https://api.alternative.me/fng/?limit=1', { cache: 'no-store' });
+    if (gen !== cdGen) return;
     if (f.ok) {
       const x = (await f.json()).data[0];
       cdData.fng = { v: +x.value, c: x.value_classification };
     }
   } catch (e) {}
+  if (gen !== cdGen) return;
+  if (ok) cdLastOk = Date.now();
   cdRender();
+  cdStaleTick();
   cdFetching = false;
 }
 function cdActivate() {
@@ -5272,6 +5387,7 @@ function cdActivate() {
   if (!cdTimer) cdTimer = setInterval(() => { if (cdActive) cdRefresh(); }, 60000);
 }
 cdRender();
+cdStaleTick();
 cdRefresh();
 
 const TAB_NAME_KEY = 'untitle.tabnames.v1';
@@ -5299,11 +5415,14 @@ function startTabRename(tab) {
     const v = inp.value.trim();
     const name = (commit && v) ? v : old;
     tab.textContent = name;
-    try {
-      const j = JSON.parse(localStorage.getItem(TAB_NAME_KEY) || '{}');
-      j[tab.dataset.view] = name;
-      localStorage.setItem(TAB_NAME_KEY, JSON.stringify(j));
-    } catch (e) {}
+    let prev = {};
+    try { prev = JSON.parse(localStorage.getItem(TAB_NAME_KEY) || '{}'); } catch (e) {}
+    if (name !== old) {
+      pushHistory({ tabNames: prev });
+      const next = Object.assign({}, prev);
+      next[tab.dataset.view] = name;
+      setTabNames(next);
+    }
   };
   inp.addEventListener('keydown', e => {
     e.stopPropagation();
@@ -5315,28 +5434,48 @@ function startTabRename(tab) {
 document.querySelectorAll('.sheet-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     if (editingCell) commitEdit();
-    document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    const view = tab.dataset.view || 'grid';
-    const is2 = view === 'crypto';
-    const is3 = view === 'markets';
-    s2Active = is3;
-    cdActive = is2;
-    document.getElementById('sheet2View').hidden = !is2;
-    document.getElementById('sheet3View').hidden = !is3;
-    const showGrid = !is2 && !is3;
-    document.getElementById('sheetContainer').style.display = showGrid ? '' : 'none';
-    document.querySelector('.formula-bar').style.display = showGrid ? '' : 'none';
-    if (is2) cdActivate();
-    if (is3) s2Activate();
+    showTab(tab.dataset.view || 'grid');
   });
   tab.addEventListener('dblclick', e => {
     e.preventDefault();
     startTabRename(tab);
   });
 });
+const VIEW_KEY = 'untitle.view.v1';
+function showTab(view) {
+  const tab = document.querySelector('.sheet-tab[data-view="' + view + '"]') || document.querySelector('.sheet-tab');
+  if (editingCell) commitEdit();
+  document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  const is2 = view === 'crypto';
+  const is3 = view === 'markets';
+  s2Active = is3;
+  cdActive = is2;
+  if (!is3 && s2Timer) { clearInterval(s2Timer); s2Timer = null; }
+  if (!is2 && cdTimer) { clearInterval(cdTimer); cdTimer = null; }
+  document.getElementById('sheet2View').hidden = !is2;
+  document.getElementById('sheet3View').hidden = !is3;
+  const showGrid = !is2 && !is3;
+  document.getElementById('sheetContainer').style.display = showGrid ? '' : 'none';
+  document.querySelector('.formula-bar').style.display = showGrid ? '' : 'none';
+  if (is2) cdActivate();
+  if (is3) s2Activate();
+  localStorage.setItem(VIEW_KEY, view);
+}
+(function restoreView() {
+  const v = localStorage.getItem(VIEW_KEY);
+  if (v && v !== 'grid') showTab(v);
+})();
+function setTabNames(j) {
+  try { localStorage.setItem(TAB_NAME_KEY, JSON.stringify(j)); } catch (e) {}
+  document.querySelectorAll('.sheet-tab').forEach(t => {
+    const n = j[t.dataset.view];
+    if (n) t.textContent = n;
+    else if (!t.querySelector('input')) t.textContent = { grid: 'Sheet1', crypto: 'Sheet2', markets: 'Sheet3' }[t.dataset.view] || 'Sheet';
+  });
+}
 
-const APP_BUILD = '2026-09-05.117';
+const APP_BUILD = '2026-09-05.125';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
@@ -5557,16 +5696,86 @@ function showSupportModal() {
 }
 
 function showAbout() {
-  alert(
-    'Untitled Spreadsheet \u2014 a privacy-first market dashboard\n\n' +
-    '\u2022 Not affiliated with, endorsed by, or connected to Google LLC or Binance.\n' +
-    '\u2022 All data stays in your browser (localStorage). No accounts, no tracking, no servers.\n' +
-    '\u2022 Market data: each user connects to their chosen endpoint directly; the author does not\n' +
-    '  provide, cache, or redistribute market data. You are responsible for the terms of use and\n' +
-    '  regional availability of the data source you enable.\n' +
-    '\u2022 Prices may be delayed or inaccurate. Nothing here is investment advice.\n' +
-    '\u2022 Licensed under MIT. Google Sheets\u2122 and Binance\u00AE are trademarks of their respective owners.'
-  );
+  closeHelpMenu();
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.classList.add('hg-modal');
+  const head = document.createElement('div');
+  head.className = 'hg-head';
+  head.innerHTML = '<h2>About &amp; disclaimer</h2><span class="hg-tag">build ' + APP_BUILD + '</span>';
+  modal.appendChild(head);
+  const IC = {
+    info: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>',
+    lock: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+    warn: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>',
+    scale: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3v18M8 21h8M6 7l-3 6a3.5 3.5 0 0 0 7 0L7 7M17 7l-3 6a3.5 3.5 0 0 0 7 0l-3-6"/></svg>',
+  };
+  const SEC = [
+    ['What this is', IC.info, 'A single-file, privacy-first market dashboard', [
+      '<b>untitle.io</b> looks like a spreadsheet but is a personal market dashboard: live prices, formulas and two market views in one page',
+      'Everything is one HTML file \u00B7 your sheet, layouts, settings and tab names live in <b>this browser only</b> (localStorage)',
+      'No accounts, no logins, no tracking, no uploads \u00B7 clearing site data erases it all',
+      'Open source under the <b>MIT license</b> \u00B7 free to use, copy and modify',
+    ]],
+    ['Your data &amp; privacy', IC.lock, 'Nothing you type ever leaves your device', [
+      'Cell contents, bindings, formatting and preferences are <b>never transmitted</b> \u00B7 there is no backend that stores them',
+      'Market quotes are fetched <b>directly from public APIs</b> (Binance, CoinGecko, Yahoo Finance and others) by your browser',
+      'The author does not provide, cache, resell or redistribute market data',
+      'You are responsible for the <b>terms of use and regional availability</b> of any data source you enable',
+    ]],
+    ['Disclaimer', IC.warn, 'Informational only \u2014 not investment advice', [
+      'Prices may be <b>delayed, incomplete or inaccurate</b> \u00B7 exchanges and data providers can go offline or change symbols',
+      'Never use this page as your sole basis for any financial decision \u00B7 <b>Do your own research</b>',
+      'The author provides this tool <b>as-is</b>, without warranty, and is not liable for any trading losses or data errors',
+      'This is a personal project \u00B7 <b>not affiliated with, endorsed by, or connected to</b> Google LLC, Binance or any exchange',
+    ]],
+    ['Trademarks &amp; credits', IC.scale, 'Respect for the brands we borrow looks and data from', [
+      'Google Sheets\u2122 is a trademark of <b>Google LLC</b> \u00B7 the spreadsheet look-alike styling is for familiarity only \u00B7 no endorsement or partnership is implied',
+      'Binance\u00AE is a trademark of <b>Binance Holdings Ltd</b> \u00B7 Hyperliquid\u2122 is a trademark of its respective owner',
+      'CoinGecko\u00AE is a trademark of <b>CoinGecko (Perth) Pty Ltd</b> \u00B7 Yahoo Finance\u2122 and its symbols are trademarks of <b>Yahoo Inc.</b>',
+      'Bond and macro data via <b>FRED\u00AE</b> \u2014 Federal Reserve Bank of St. Louis \u00B7 Fear &amp; Greed index by <b>alternative.me</b>',
+      'All other names, logos and data are the property of their respective owners \u00B7 listed for identification only',
+    ]],
+  ];
+  const body = document.createElement('div');
+  body.className = 'hg-body';
+  const nav = document.createElement('div');
+  nav.className = 'hg-nav';
+  const pane = document.createElement('div');
+  pane.className = 'hg-pane';
+  const show = idx => {
+    Array.from(nav.children).forEach((b, i) => b.classList.toggle('on', i === idx));
+    const sec = SEC[idx];
+    pane.innerHTML = '<h3>' + sec[0] + '</h3><p class="hg-sub">' + sec[2] + '</p><ul>' +
+      sec[3].map(li => '<li>' + li + '</li>').join('') + '</ul>';
+  };
+  SEC.forEach((sec, i) => {
+    const b = document.createElement('button');
+    b.innerHTML = sec[1] + '<span>' + sec[0] + '</span>';
+    b.addEventListener('click', () => show(i));
+    nav.appendChild(b);
+  });
+  body.appendChild(nav);
+  body.appendChild(pane);
+  show(0);
+  modal.appendChild(body);
+  const tip = document.createElement('div');
+  tip.className = 'hg-tip';
+  tip.innerHTML = 'MIT licensed \u00B7 a privacy-first side project \u2014 no ads, no accounts, no data collection';
+  modal.appendChild(tip);
+  const btnRow = document.createElement('div');
+  btnRow.className = 'm-btnrow';
+  const ok = document.createElement('button');
+  ok.className = 'm-btn primary';
+  ok.textContent = 'Got it';
+  ok.addEventListener('click', () => overlay.remove());
+  btnRow.appendChild(ok);
+  modal.appendChild(btnRow);
+  overlay.appendChild(modal);
+  overlay.addEventListener('mousedown', (ev) => { if (ev.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
 }
 
 function openHelpModal() {
@@ -5589,26 +5798,60 @@ function openHelpModal() {
     shield: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>',
   };
   const SEC = [
-    ['Price data', IC.chart, [
+    ['Price data', IC.chart, 'Live quotes from one strict source', [
       '<b>Edit \u2192 API sources\u2026</b> picks one strict source: Binance, Hyperliquid, CoinGecko or Self-hosted',
       'Code search suggests <b>only from that source</b> \u00B7 company names work (\u201CApple\u201D \u2192 AAPL)',
       '<b>No Data</b> means the source does not cover the asset',
       'Feed label shows the live source \u00B7 <b>Auto Sync</b> polls in background, <b>Refresh</b> is on demand',
     ]],
-    ['Privacy &amp; safety', IC.shield, [
+    ['Formulas &amp; formatting', IC.sigma, 'Real spreadsheet power, safely applied', [
+      'Type <b>=</b> in any cell \u00B7 SUM, AVERAGE, IF, ROUND, COUNTIF, SUMPRODUCT and 17 more \u00B7 ranges like <b>C4:C11</b> work',
+      'Toolbar <b>$ % ,0 123</b> sets number format \u00B7 formulas are never destroyed by formatting',
+      '<b>Merge cells</b> button merges the selected range \u00B7 merging again splits it back',
+      'Drag column borders to resize \u00B7 <b>Ctrl+Z / Ctrl+Y</b> undo and redo everything',
+    ]],
+    ['Dashboards', IC.grid, 'Two live market views, one keystroke away', [
+      '<b>Sheet2 \u2014 Crypto</b>: live CoinGecko market data \u00B7 top 10, majors, gainers, losers and a Fear &amp; Greed gauge',
+      '<b>Sheet3 \u2014 Markets</b>: FX, metals, energy and US Treasury yields in USD \u00B7 Fed funds target and spreads update live',
+      'Both refresh automatically while the tab is open \u00B7 last update shown per card',
+      'All values come from public APIs \u2014 nothing you type is ever sent anywhere',
+    ]],
+    ['Shortcuts', IC.pencil, 'Move fast without touching the mouse', [
+      '<kbd>Esc Esc</kbd> \u2014 leaves a dashboard back to Sheet1 \u00B7 pressed twice quickly on Sheet1 it closes the tab to Google',
+      '<b>Double-click a sheet tab</b> to rename it \u00B7 names are saved in this browser',
+      '<kbd>Ctrl+B</kbd> bold \u00B7 <kbd>Ctrl+C/V</kbd> copy paste ranges \u00B7 <kbd>Enter</kbd> commits, <kbd>Esc</kbd> cancels editing',
+      '<b>File \u2192 Reset everything</b> restores the default sheet \u2014 data, merges, sizes and settings all erased',
+    ]],
+    ['Privacy &amp; safety', IC.shield, 'Your data never leaves this browser', [
       'Everything lives in this browser \u2014 no accounts, no tracking, no uploads',
+      'Looks like a spreadsheet, but it is a private dashboard \u00B7 the title bar is yours to rename',
     ]],
   ];
   const tip = document.createElement('div');
   tip.className = 'hg-tip';
-  tip.innerHTML = '<kbd>Esc</kbd> <kbd>Esc</kbd> \u00A0 quickly \u2014 closes any open dialog or menu';
-  const grid = document.createElement('div');
-  grid.className = 'hg-grid';
-  grid.innerHTML = SEC.map(sec =>
-    '<div class="hg-sec"><h3>' + sec[1] + sec[0] + '</h3><ul>' +
-    sec[2].map(li => '<li>' + li + '</li>').join('') + '</ul></div>'
-  ).join('');
-  modal.appendChild(grid);
+  tip.innerHTML = 'This guide is part of the disguise \u2014 it looks exactly like Google Sheets help';
+  const body = document.createElement('div');
+  body.className = 'hg-body';
+  const nav = document.createElement('div');
+  nav.className = 'hg-nav';
+  const pane = document.createElement('div');
+  pane.className = 'hg-pane';
+  const show = idx => {
+    Array.from(nav.children).forEach((b, i) => b.classList.toggle('on', i === idx));
+    const sec = SEC[idx];
+    pane.innerHTML = '<h3>' + sec[0] + '</h3><p class="hg-sub">' + sec[2] + '</p><ul>' +
+      sec[3].map(li => '<li>' + li + '</li>').join('') + '</ul>';
+  };
+  SEC.forEach((sec, i) => {
+    const b = document.createElement('button');
+    b.innerHTML = sec[1] + '<span>' + sec[0] + '</span>';
+    b.addEventListener('click', () => show(i));
+    nav.appendChild(b);
+  });
+  body.appendChild(nav);
+  body.appendChild(pane);
+  show(0);
+  modal.appendChild(body);
   modal.appendChild(tip);
   const btnRow = document.createElement('div');
   btnRow.className = 'm-btnrow';
@@ -5826,7 +6069,7 @@ function loadLastPrices() {
   try {
     const d = JSON.parse(localStorage.getItem('lastPrices') || 'null');
     if (d) prices = { ...d, ...prices };
-  } catch(e) {}
+  } catch(e) { backupCorrupt('lastPrices'); }
 }
 
 const SRC_NAMES = { binance: 'Binance', coinbase: 'Coinbase', coingecko: 'CoinGecko', finnhub: 'Finnhub', selfhost: 'Self-hosted', hyperliquid: 'Hyperliquid', bybit: 'Bybit', okx: 'OKX' };
@@ -5852,6 +6095,7 @@ function setFeed(kind) {
   if (!el) return;
   const txt = document.getElementById('feedText');
   el.classList.remove('ws', 'rest', 'cached');
+  el.hidden = !kind;
   if (kind) el.classList.add(kind);
   txt.textContent = kind === 'ws' ? 'Live \u00B7 Binance WS' : kind === 'rest' ? 'Polling \u00B7 ' + (SRC_NAMES[dominantSrc()] || 'REST') : kind === 'cached' ? 'Cached (rate limited)' : 'Idle';
 }
@@ -6096,6 +6340,10 @@ function setLive(on) {
     refreshMarket(false).then(ok => {
       if (!ok) { liveBackoff = 2; liveLabel(); }
     });
+  } else if (liveTimer) {
+    clearTimeout(liveTimer);
+    liveTimer = null;
+    setFeed(null);
   }
   scheduleNextSync();
   liveLabel();
@@ -6134,8 +6382,7 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     const dashVisible = !document.getElementById('sheet2View').hidden || !document.getElementById('sheet3View').hidden;
     if (dashVisible && !document.querySelector('.modal-overlay')) {
-      const gridTab = document.querySelector('.sheet-tab[data-view="grid"]');
-      if (gridTab) gridTab.dispatchEvent(new Event('click', { bubbles: true }));
+      showTab('grid');
       return;
     }
     const now = Date.now();
@@ -6242,6 +6489,7 @@ updateHistoryButtons();
 (dataSource === 'selfhost' || localStorage.getItem('selfhostEnabled') === '1'
   ? probeSelfhost() : Promise.resolve(false)).then(autoPickSource).then(() => {
   startFeed();
+  if (localStorage.getItem('liveMode') === '1') setLive(true);
   fetchPrices().then(ok => {
     lastFetchAt = Date.now();
     updateMarketData();
@@ -6259,6 +6507,11 @@ updateHistoryButtons();
 });
 buildMobileToolbar();
 setTimeout(maybeShowMobileNotice, 400);
+if (corruptKeys.length) {
+  setTimeout(() => {
+    showToast('Saved data was corrupted and reset \u00B7 backup kept under ' + corruptKeys[0] + '.corrupt');
+  }, 1200);
+}
 </script>
 </body>
 </html>

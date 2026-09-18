@@ -191,7 +191,7 @@ function check(name, cond, detail) {
   check('Sheet3: 미 국채 4행/USD 금리 5행', s2tbls[0].querySelectorAll('tbody tr').length === 4 && s2tbls[1].querySelectorAll('tbody tr').length === 5);
   check('Sheet3: 프록시 훅(fed 3종)', document.querySelectorAll('#sheet3View [data-s2r]').length === 1 && document.querySelectorAll('#sheet3View [data-s2rc]').length === 1 && document.querySelectorAll('#sheet3View [data-s2d]').length === 1);
   g("s2Data.us10y={p:5.1,prev:5.0};s2Data.us5y={p:4.8,prev:4.9};s2Render();");
-  check('Sheet3: 상승빨강/하락파랑 클래스', !!document.querySelector('#sheet3View [data-s2c="us10y"].s2-up') && !!document.querySelector('#sheet3View [data-s2c="us5y"].s2-down'));
+  check('Sheet3: 상승초록/하락빨강(통일)', !!document.querySelector('#sheet3View [data-s2c="us10y"].s2-up') && !!document.querySelector('#sheet3View [data-s2c="us5y"].s2-down'));
   tabs2[0].dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
   check('Sheet3: Sheet1 복귀', document.getElementById('sheet3View').hidden && document.getElementById('sheetContainer').style.display === '');
 
@@ -258,7 +258,7 @@ function check(name, cond, detail) {
   check('Pages Function quote 존재', fs.existsSync(require('path').join(__dirname, '..', 'functions', 'quote', '[[path]].js')));
   check('Pages Function indicators 존재', fs.existsSync(require('path').join(__dirname, '..', 'functions', 'api', 'indicators.js')));
     check('S2_PROXY 연결', g("S2_PROXY") === 'https://api.untitle.io');
-  check('빌드 번호 일치', g("APP_BUILD") === '2026-09-05.117', g("APP_BUILD"));
+  check('빌드 번호 일치', g("APP_BUILD") === '2026-09-05.125', g("APP_BUILD"));
 
   // 4. plain number format resets $/%/,
   g("cellData['3C'] = '$1,234.50'; cellData['3D'] = '12.34%'; cellData['3E'] = '1,234,567'; renderGrid();");
@@ -733,7 +733,7 @@ function check(name, cond, detail) {
   g("localStorage.removeItem('cgStockIds'); applyDataSource('coingecko');");
   await g("refreshMarket(true)");
   check('CG: tokenized stock fetch', g("prices['AAPL'] && prices['AAPL'].src === 'coingecko' && prices['AAPL'].price === 228.15"), JSON.stringify(g("prices['AAPL']")));
-  check('CG: stock id cache (우선순위 coinbase-tokenized)', g("JSON.parse(localStorage.getItem('cgStockIds')).AAPL") === 'apple-coinbase-tokenized-stock', g("localStorage.getItem('cgStockIds')"));
+  check('CG: stock id cache (우선순위 coinbase-tokenized)', g("JSON.parse(localStorage.getItem('cgStockIds')).AAPL.id") === 'apple-coinbase-tokenized-stock', g("localStorage.getItem('cgStockIds')"));
   check('CG: crypto 유지', g("prices['BTC'] && prices['BTC'].price === 70000"), JSON.stringify(g("prices['BTC']")));
   g("applyDataSource('binance');");
   await g("refreshMarket(true)");
@@ -774,12 +774,110 @@ function check(name, cond, detail) {
   check('Help 메뉴 열림', helpItems.includes('Quick guide'), helpItems.join(','));
   Array.from(document.querySelectorAll('.menu-dropdown .md-item')).find(d => d.textContent === 'Quick guide').dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true, cancelable: true }));
   const helpOv = document.querySelector('.modal-overlay');
-  check('Quick guide 모달', !!helpOv && helpOv.textContent.includes('Binance') && helpOv.textContent.includes('Esc') && !helpOv.textContent.includes('Formulas'), helpOv && helpOv.textContent.slice(0, 60));
+  check('Quick guide 모달', !!helpOv && helpOv.textContent.includes('Binance') && helpOv.querySelectorAll('.hg-nav button').length === 5 && (function(){var bs=helpOv.querySelectorAll('.hg-nav button');bs[2].dispatchEvent(new window.MouseEvent('click',{bubbles:true,cancelable:true}));var p1=helpOv.querySelector('.hg-pane').textContent.includes('Fear');bs[1].dispatchEvent(new window.MouseEvent('click',{bubbles:true,cancelable:true}));var p2=helpOv.querySelector('.hg-pane').textContent.includes('SUM');bs[0].dispatchEvent(new window.MouseEvent('click',{bubbles:true,cancelable:true}));return p1&&p2&&helpOv.querySelector('.hg-pane').textContent.includes('Binance');})(), helpOv && helpOv.textContent.slice(0, 60));
   check('Quick guide 헤더(로고 없음/타이틀 좌/빌드 우)', !!helpOv && !helpOv.querySelector('.hg-head svg') && helpOv.querySelector('.hg-head h2').textContent === 'Quick guide' && !!helpOv.querySelector('.hg-head .hg-tag'), helpOv && helpOv.querySelector('.hg-head').innerHTML.slice(0, 40));
   const gotIt = Array.from(document.querySelectorAll('.m-btnrow .m-btn')).find(b => b.textContent === 'Got it');
   check('Got it 버튼 우측 배치', !!gotIt && gotIt.closest('.m-btnrow') !== null, String(!!gotIt));
   if (gotIt) gotIt.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
   check('Got it 클릭 시 닫힘', !document.querySelector('.modal-overlay'));
+  check('About & disclaimer 모달(4탭/경고문구)', (function () {
+    g("showAbout();");
+    const ov = document.querySelector('.modal-overlay');
+    const ok1 = !!ov && ov.querySelector('.hg-head h2').textContent === 'About & disclaimer' && ov.querySelectorAll('.hg-nav button').length === 4;
+    const bs = ov.querySelectorAll('.hg-nav button');
+    bs[2].dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+    const ok2 = ov.querySelector('.hg-pane').textContent.includes('investment advice') && ov.querySelector('.hg-pane').textContent.includes('delayed');
+    bs[1].dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+    const ok3 = ov.querySelector('.hg-pane').textContent.includes('never transmitted');
+    bs[3].dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+    const ok4 = ov.querySelector('.hg-pane').textContent.includes('Google LLC') && ov.querySelector('.hg-pane').textContent.includes('alternative.me') && ov.querySelector('.hg-pane').textContent.includes('CoinGecko') && ov.querySelector('.hg-pane').textContent.includes('Yahoo Inc.') && ov.querySelector('.hg-pane').textContent.includes('FRED');
+    const got = Array.from(document.querySelectorAll('.m-btnrow .m-btn')).find(b => b.textContent === 'Got it');
+    if (got) got.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    return ok1 && ok2 && ok3 && ok4 && !document.querySelector('.modal-overlay');
+  })(), 'about modal');
+  check('손상 데이터 백업 후 기본값 복원', (function () {
+    window.localStorage.setItem('sheetData', '{broken json!!');
+    window.localStorage.setItem('rowAssets', 'not json');
+    g("cellData = {}; initCellData(); initRowAssets()");
+    const kept = window.localStorage.getItem('sheetData.corrupt') === '{broken json!!' && window.localStorage.getItem('rowAssets.corrupt') === 'not json';
+    const cleared = window.localStorage.getItem('rowAssets') === null;
+    const defaulted = !!g("cellData['1A']");
+    window.localStorage.removeItem('sheetData.corrupt');
+    window.localStorage.removeItem('rowAssets.corrupt');
+    g("cellData = {}; initCellData(); initRowAssets(); renderGrid()");
+    return kept && cleared && defaulted;
+  })(), 'corrupt backup');
+  check('Fed Target 워커 파생', (function () {
+    const before = g("FED_FUNDS_TOP");
+    g("FED_FUNDS_TOP = 4.00; s2ProxyRefresh();");
+    return before === 3.75;
+  })(), 'fed top');
+  check('실행취소: 탭 이름 복원', (function () {
+    const tab = document.querySelector('.sheet-tab[data-view="grid"]');
+    g("startTabRename(document.querySelector('.sheet-tab[data-view=grid]'))");
+    const inp = tab.querySelector('input');
+    inp.value = 'Budget Q4';
+    inp.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+    const renamed = tab.textContent === 'Budget Q4' && JSON.parse(window.localStorage.getItem('untitle.tabnames.v1')).grid === 'Budget Q4';
+    g("undo()");
+    const back = tab.textContent === 'Sheet1' && !JSON.parse(window.localStorage.getItem('untitle.tabnames.v1')).grid;
+    g("redo()");
+    const redone = tab.textContent === 'Budget Q4';
+    g("undo()");
+    return renamed && back && redone;
+  })(), 'tab name undo');
+  check('실행취소: 열 너비 복원', (function () {
+    g("colWidths[2] = 200; renderGrid();");
+    g("startColResize({ preventDefault(){}, stopPropagation(){}, clientX: 0 }, 2);");
+    document.dispatchEvent(new window.MouseEvent('mousemove', { clientX: 120 }));
+    document.dispatchEvent(new window.MouseEvent('mouseup'));
+    const widened = g("colWidths[2]") === 320;
+    g("undo()");
+    const restored = g("colWidths[2]") === 200;
+    g("redo()");
+    const redone = g("colWidths[2]") === 320;
+    g("undo(); colWidths[2] = undefined; saveLayout(); renderGrid();");
+    return widened && restored && redone;
+  })(), 'width undo');
+  check('탭 상태 저장/복원', (function () {
+    g("showTab('crypto')");
+    const saved = window.localStorage.getItem('untitle.view.v1') === 'crypto';
+    const cdShown = !document.getElementById('sheet2View').hidden && document.getElementById('sheet3View').hidden;
+    g("showTab('markets')");
+    const mShown = !document.getElementById('sheet3View').hidden && document.getElementById('sheet2View').hidden;
+    g("showTab('grid')");
+    const back = !document.getElementById('sheetContainer').style.display && document.getElementById('sheet2View').hidden;
+    return saved && cdShown && mShown && back && window.localStorage.getItem('untitle.view.v1') === 'grid';
+  })(), 'view persistence');
+  check('fetchPrices 경쟁 가드', (function () {
+    const g0 = g("pricesGen");
+    g("prices['ZZTEST'] = { price: 1, change: 0, src: 'x' };");
+    g("pricesGen++;");
+    return g("pricesGen") === g0 + 1;
+  })(), 'prices gen');
+  check('Live 태그 stale/Updated 표시', (function () {
+    const tags = Array.from(document.querySelectorAll('#sheet3View .s2-tag.live'));
+    if (!tags.length) return false;
+    g("s2LastOk = 0; s2StaleTick();");
+    const offline = tags[0].textContent === 'Offline' && tags[0].classList.contains('stale');
+    g("s2LastOk = Date.now(); s2StaleTick();");
+    const live = tags[0].textContent === 'Live' && !tags[0].classList.contains('stale');
+    const upd = /^Updated \d\d:\d\d$/.test(document.getElementById('s2Updated').textContent);
+    g("cdLastOk = Date.now() - 20 * 60 * 1000; cdStaleTick();");
+    const cdStale = document.querySelector('#sheet2View .s2-tag.live').textContent === 'Stale';
+    g("cdLastOk = Date.now(); cdStaleTick();");
+    return offline && live && upd && cdStale;
+  })(), 'stale tags');
+  check('Feed status 표시 동작', (function () {
+    const el = document.getElementById('feedStatus');
+    if (!el) return false;
+    g("setFeed('rest')");
+    const t1 = document.getElementById('feedText').textContent.startsWith('Polling') && !el.hidden && el.classList.contains('rest');
+    g("setFeed('ws')");
+    const t2 = document.getElementById('feedText').textContent === 'Live · Binance WS' && el.classList.contains('ws');
+    g("setFeed(null)");
+    return t1 && t2 && el.hidden;
+  })(), 'feed status');
   g("openHelpModal();");
   g("lastEscTime = 0;");
   document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
