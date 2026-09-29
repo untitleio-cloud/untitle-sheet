@@ -4452,7 +4452,7 @@ function attachAutocomplete(editor, cellEl, row) {
       status.textContent = 'Searching CoinGecko\u2026';
       const seq = ++acSeq;
       acTimer = setTimeout(() => {
-        fetch('https://api.coingecko.com/api/v3/search?query=' + encodeURIComponent(q))
+        fetch((S2_PROXY ? S2_PROXY + '/cg/' : 'https://api.coingecko.com/api/v3/') + 'search?query=' + encodeURIComponent(q))
           .then(res => (res.ok ? res.json() : Promise.reject()))
           .then(d => {
             if (seq !== acSeq) return;
@@ -4706,7 +4706,7 @@ async function cgStockId(ticker) {
   const hit = cache[t];
   if (hit && (hit.id || Date.now() - (hit.ts || 0) < 24 * 3600 * 1000)) return hit.id;
   try {
-    const res = await fetch('https://api.coingecko.com/api/v3/search?query=' + encodeURIComponent(t));
+    const res = await fetch((S2_PROXY ? S2_PROXY + '/cg/' : 'https://api.coingecko.com/api/v3/') + 'search?query=' + encodeURIComponent(t));
     if (!res.ok) return null;
     const d = await res.json();
     let best = null, bestScore = 99;
@@ -4729,7 +4729,7 @@ async function fetchCoinGeckoTicker(ticker, type) {
   if (!id && type === 'stock') id = await cgStockId(ticker);
   if (!id || Date.now() < cgLimitedUntil) return false;
   try {
-    const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=' + encodeURIComponent(id) + '&vs_currencies=usd&include_24hr_change=true');
+    const res = await fetch((S2_PROXY ? S2_PROXY + '/cg/' : 'https://api.coingecko.com/api/v3/') + 'simple/price?ids=' + encodeURIComponent(id) + '&vs_currencies=usd&include_24hr_change=true');
     if (res.status === 429) { cgLimitedUntil = Date.now() + 60000; return false; }
     if (res.status === 451 || res.status === 403) { sourceHealth.coingecko = 'blocked'; return false; }
     if (!res.ok) { if (++cgNetFails >= 2) sourceHealth.coingecko = 'blocked'; return false; }
@@ -4790,7 +4790,7 @@ async function fetchCoinGeckoBatch(entries) {
   const ids = [...new Set(entries.map(e => e.id).filter(Boolean))];
   if (!ids.length || Date.now() < cgLimitedUntil) return false;
   try {
-    const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=' + encodeURIComponent(ids.join(',')) + '&vs_currencies=usd&include_24hr_change=true');
+    const res = await fetch((S2_PROXY ? S2_PROXY + '/cg/' : 'https://api.coingecko.com/api/v3/') + 'simple/price?ids=' + encodeURIComponent(ids.join(',')) + '&vs_currencies=usd&include_24hr_change=true');
     if (res.status === 429) { cgLimitedUntil = Date.now() + 60000; return false; }
     if (res.status === 451 || res.status === 403) { sourceHealth.coingecko = 'blocked'; return false; }
     if (!res.ok) { if (++cgNetFails >= 2) sourceHealth.coingecko = 'blocked'; return false; }
@@ -5346,7 +5346,7 @@ async function cdRefresh() {
   const gen = ++cdGen;
   let ok = false;
   try {
-    const r = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&price_change_percentage=24h', { cache: 'no-store' });
+    const r = await fetch((S2_PROXY ? S2_PROXY + '/cg/' : 'https://api.coingecko.com/api/v3/') + 'coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&price_change_percentage=24h', { cache: 'no-store' });
     if (gen !== cdGen) return;
     if (r.ok) {
       const d = await r.json();
@@ -5357,7 +5357,7 @@ async function cdRefresh() {
     }
   } catch (e) {}
   try {
-    const g = await fetch('https://api.coingecko.com/api/v3/global', { cache: 'no-store' });
+    const g = await fetch((S2_PROXY ? S2_PROXY + '/cg/' : 'https://api.coingecko.com/api/v3/') + 'global', { cache: 'no-store' });
     if (gen !== cdGen) return;
     if (g.ok) {
       const gd = (await g.json()).data;
@@ -5368,7 +5368,7 @@ async function cdRefresh() {
     }
   } catch (e) {}
   try {
-    const f = await fetch('https://api.alternative.me/fng/?limit=1', { cache: 'no-store' });
+    const f = await fetch((S2_PROXY ? S2_PROXY + '/fng/' : 'https://api.alternative.me/') + 'fng/?limit=1', { cache: 'no-store' });
     if (gen !== cdGen) return;
     if (f.ok) {
       const x = (await f.json()).data[0];
@@ -5476,7 +5476,7 @@ function setTabNames(j) {
   });
 }
 
-const APP_BUILD = '2026-09-05.125';
+const APP_BUILD = '2026-09-05.126';
 const BMC_URL = 'https://buymeacoffee.com/untitleio';
 
 const SRC_META = [
@@ -5525,7 +5525,7 @@ function probeSource(kind) {
   }
   if (kind === 'bybit') return probeUrl('https://api.bybit.com/v5/market/tickers?category=spot&symbol=BTCUSDT');
   if (kind === 'okx') return probeUrl('https://www.okx.com/api/v5/market/ticker?instId=BTC-USDT');
-  return probeUrl(kind === 'binance' ? 'https://fapi.binance.com/fapi/v1/time' : 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+  return probeUrl(kind === 'binance' ? 'https://fapi.binance.com/fapi/v1/time' : (S2_PROXY ? S2_PROXY + '/cg/' : 'https://api.coingecko.com/api/v3/') + 'simple/price?ids=bitcoin&vs_currencies=usd');
 }
 
 function openApiSourcesModal() {

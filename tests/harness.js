@@ -40,7 +40,7 @@ function routes(url, body) {
     const e = db[inst];
     return { code: '0', data: e ? [{ instId: inst, last: e[0], open24h: e[1] }] : [] };
   }
-  if (url.includes('api.coingecko.com/api/v3/search')) {
+  if (url.includes('/cg/search') || url.includes('api.coingecko.com/api/v3/search')) {
     const q = decodeURIComponent((url.match(/query=([^&]+)/) || [])[1] || '').toUpperCase();
     const coins = q === 'AAPL' ? [
       { id: 'apple-xstock', symbol: 'AAPL', name: 'Apple xStock' },
@@ -49,12 +49,35 @@ function routes(url, body) {
     ] : [];
     return { coins };
   }
-  if (url.includes('api.coingecko.com/api/v3/simple/price')) {
+  if (url.includes('/cg/simple/price') || url.includes('api.coingecko.com/api/v3/simple/price')) {
     const ids = decodeURIComponent((url.match(/ids=([^&]+)/) || [])[1] || '').split(',');
     const db = { bitcoin: { usd: 70000, usd_24h_change: 1.5 }, ethereum: { usd: 2500, usd_24h_change: 2 }, 'apple-coinbase-tokenized-stock': { usd: 228.15, usd_24h_change: 0.63 } };
     const out = {};
     ids.forEach(i => { if (db[i]) out[i] = db[i]; });
     return out;
+  }
+  if (url.includes('/cg/coins/markets') || url.includes('/api/v3/coins/markets')) {
+    return [
+      { id: 'bitcoin', symbol: 'btc', name: 'Bitcoin', current_price: 76382, price_change_percentage_24h: 0.88, market_cap: 1.51e12 },
+      { id: 'tether', symbol: 'usdt', name: 'Tether', current_price: 1, price_change_percentage_24h: 99, market_cap: 1.8e11 },
+      { id: 'ethereum', symbol: 'eth', name: 'Ethereum', current_price: 2441, price_change_percentage_24h: 1.9, market_cap: 3e11 },
+      { id: 'solana', symbol: 'sol', name: 'Solana', current_price: 99.78, price_change_percentage_24h: 3, market_cap: 5.8e10 },
+      { id: 'aptos', symbol: 'apt', name: 'Aptos', current_price: 9.34, price_change_percentage_24h: 6.2, market_cap: 5.4e9 },
+      { id: 'cardano', symbol: 'ada', name: 'Cardano', current_price: 0.842, price_change_percentage_24h: -3.1, market_cap: 2.9e10 },
+      { id: 'ripple', symbol: 'xrp', name: 'XRP', current_price: 1.3, price_change_percentage_24h: 0.2, market_cap: 8e10 },
+      { id: 'binancecoin', symbol: 'bnb', name: 'BNB', current_price: 700, price_change_percentage_24h: -0.5, market_cap: 1e11 },
+      { id: 'dogecoin', symbol: 'doge', name: 'Dogecoin', current_price: 0.12, price_change_percentage_24h: -1.2, market_cap: 1.8e10 },
+      { id: 'avalanche-2', symbol: 'avax', name: 'Avalanche', current_price: 30, price_change_percentage_24h: -2.2, market_cap: 1.2e10 },
+      { id: 'polkadot', symbol: 'dot', name: 'Polkadot', current_price: 6, price_change_percentage_24h: -1.8, market_cap: 8e9 },
+      { id: 'near', symbol: 'near', name: 'NEAR', current_price: 5, price_change_percentage_24h: 1.1, market_cap: 5e9 },
+      { id: 'tron', symbol: 'trx', name: 'TRON', current_price: 0.15, price_change_percentage_24h: -0.4, market_cap: 1.3e10 },
+    ];
+  }
+  if (url.includes('/cg/global') || url.includes('/api/v3/global')) {
+    return { data: { total_market_cap: { usd: 2.63e12 }, total_volume: { usd: 9.3e10 }, market_cap_percentage: { btc: 58.3 }, market_cap_change_percentage_24h_usd: -1.61 } };
+  }
+  if (url.includes('alternative.me') || url.includes('/fng')) {
+    return { data: [{ value: '50', value_classification: 'Neutral' }] };
   }
   throw new Error('unhandled: ' + url);
 }
@@ -258,7 +281,7 @@ function check(name, cond, detail) {
   check('Pages Function quote 존재', fs.existsSync(require('path').join(__dirname, '..', 'functions', 'quote', '[[path]].js')));
   check('Pages Function indicators 존재', fs.existsSync(require('path').join(__dirname, '..', 'functions', 'api', 'indicators.js')));
     check('S2_PROXY 연결', g("S2_PROXY") === 'https://api.untitle.io');
-  check('빌드 번호 일치', g("APP_BUILD") === '2026-09-05.125', g("APP_BUILD"));
+  check('빌드 번호 일치', g("APP_BUILD") === '2026-09-05.126', g("APP_BUILD"));
 
   // 4. plain number format resets $/%/,
   g("cellData['3C'] = '$1,234.50'; cellData['3D'] = '12.34%'; cellData['3E'] = '1,234,567'; renderGrid();");

@@ -15,7 +15,10 @@
  * BOT GUARD: non-browser User-Agents get 403; per-IP rate limit (60/min for /quote,
  * 120/min otherwise) enforced globally by the "Guard" Durable Object (429 + Retry-After).
  *
- * ENDPOINT: GET /api/indicators -> JSON { bonds:[...], rates:[...], meta:{...} }
+ * ENDPOINTS: GET /api/indicators -> JSON { bonds:[...], rates:[...], meta:{...} }
+ *            GET /cg/<coingecko path> -> CoinGecko passthrough (browser CORS blocked
+ *            from untitle.io origin since 2026-09; server-side fetch has no CORS)
+ *            GET /fng/<path>          -> alternative.me Fear & Greed passthrough
  */
 
 const STATIC = {
@@ -130,6 +133,26 @@ export default {
         const up = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(sym) + '?range=2d&interval=1d', { headers: { 'User-Agent': 'Mozilla/5.0' } });
         const body = await up.text();
         return new Response(body, { status: up.status, headers: Object.assign(corsFor(request), { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' }) });
+      } catch (e) {
+        return new Response('{"error":"upstream"}', { status: 502, headers: Object.assign(corsFor(request), { 'Content-Type': 'application/json' }) });
+      }
+    }
+    if (url.pathname.startsWith('/cg/')) {
+      const path = url.pathname.slice(3) + url.search;
+      try {
+        const up = await fetch('https://api.coingecko.com/api/v3/' + path, { headers: { 'User-Agent': 'untitle.io/1.0' } });
+        const body = await up.text();
+        return new Response(body, { status: up.status, headers: Object.assign(corsFor(request), { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' }) });
+      } catch (e) {
+        return new Response('{"error":"upstream"}', { status: 502, headers: Object.assign(corsFor(request), { 'Content-Type': 'application/json' }) });
+      }
+    }
+    if (url.pathname.startsWith('/fng/')) {
+      const qs = url.pathname.slice(5) + url.search;
+      try {
+        const up = await fetch('https://api.alternative.me/' + qs, { headers: { 'User-Agent': 'untitle.io/1.0' } });
+        const body = await up.text();
+        return new Response(body, { status: up.status, headers: Object.assign(corsFor(request), { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=300' }) });
       } catch (e) {
         return new Response('{"error":"upstream"}', { status: 502, headers: Object.assign(corsFor(request), { 'Content-Type': 'application/json' }) });
       }
